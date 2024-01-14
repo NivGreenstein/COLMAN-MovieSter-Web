@@ -2,12 +2,13 @@ import { MongoClient } from 'mongodb';
 import { config } from 'dotenv';
 config();
 
-let mongodbClient: MongoClient | null = null;
+let mongodbClient: MongoClient;
 
 const initDbConnection = async () => {
-	const { MONGO_DB_URL: connectionString = '' } = process.env;
-	if (!connectionString) {
-		throw new Error('MONGO_DB_URL not found in .env file');
+	const { MONGO_DB_URL: connectionString = '', DB_NAME: dbName = '' } =
+		process.env;
+	if (!connectionString || !dbName) {
+		throw new Error('MONGO_DB_URL or DB_NAME not found in .env file');
 	}
 	const client = new MongoClient(connectionString);
 
@@ -34,6 +35,12 @@ export const getMongoDbClient = async () => {
 	}
 	await initDbConnection();
 	return mongodbClient;
+};
+
+export const getDb = async () => {
+	const db = await getMongoDbClient();
+	const { DB_NAME: dbName = '' } = process.env;
+	return db.db(dbName);
 };
 
 export const closeMongoDbConnection = async () => {
