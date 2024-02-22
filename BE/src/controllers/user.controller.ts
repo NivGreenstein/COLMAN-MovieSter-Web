@@ -4,16 +4,16 @@ import * as service from '../services/user.service';
 import { ZodError } from 'zod';
 import httpCode from 'http-status-codes';
 import { RequestHandler } from 'express';
-import { errorResponse } from '../Globals';
+import { ErrorResponse } from '../Globals';
 import { WithId } from 'mongodb';
 
 export type PartialUserUpdate = { _id: string } & Partial<User>;
 export type UserWithPassword = User & { password: string };
-export type UserUpdate = RequestHandler<PartialUserUpdate, undefined | errorResponse>;
-export type UserCreate = RequestHandler<UserWithPassword, undefined | errorResponse>;
-export type UserDelete = RequestHandler<{ id: string }, undefined | errorResponse>;
-export type UserGetById = RequestHandler<{ id: string }, WithId<User> | errorResponse>;
-export type UserGetByEmail = RequestHandler<{ email: string }, WithId<User> | errorResponse>;
+export type UserUpdate = RequestHandler<PartialUserUpdate, undefined | ErrorResponse>;
+export type UserCreate = RequestHandler<UserWithPassword, undefined | ErrorResponse>;
+export type UserDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
+export type UserGetById = RequestHandler<{ id: string }, WithId<User> | ErrorResponse>;
+export type UserGetByEmail = RequestHandler<{ email: string }, WithId<User> | ErrorResponse>;
 
 export const updateUser: UserUpdate = async (req, res) => {
   try {
