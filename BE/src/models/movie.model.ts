@@ -1,13 +1,8 @@
-import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 
 export const MovieSchema = z
   .object({
-    _id: z
-      .string()
-      .regex(/^[0-9a-fA-F]{24}$/)
-      .or(z.instanceof(ObjectId))
-      .optional(),
+    id: z.number(),
     title: z.string(),
     description: z.string().email(),
     posterUrl: z.string().url(),
