@@ -1,14 +1,14 @@
-import React, {useState} from 'react';
-import {Button, Form, Input, Typography} from 'antd';
-import GoogleLoginButton from "../GoogleLoginButton/GoogleLoginButton";
-import logo from "../../../assets/logo.png"; // Make sure this path is correct
+import { Button, Form, Input } from 'antd';
+import logo from "../../../assets/logo.png";
+import React from "react";
 import { Link } from 'react-router-dom';
 
 
-const LoginPage: React.FC = () => {
+
+const RegistrationPage: React.FC = () => {
     const [form] = Form.useForm();
 
-    const handleLogin = () => {
+    const handleRegistration = () => {
         form
             .validateFields()
             .then((values) => {
@@ -20,15 +20,29 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="login-container" style={{padding: '50px', maxWidth: '400px', margin: '0 auto'}}>
+        <div className="registration-container" style={{ padding: '50px', maxWidth: '400px', margin: '0 auto' }}>
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={handleLogin}
+                onFinish={handleRegistration}
             >
-                <div style={{textAlign: 'center', marginBottom: '24px'}}>
-                    <img src={logo} alt="App Logo" style={{maxWidth: '500px', marginBottom: '24px'}}/>
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    <img src={logo} alt="App Logo" style={{ maxWidth: '500px', marginBottom: '24px' }}/>
                 </div>
+
+                <Form.Item
+                    name="username"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Please input your username!',
+                        },
+                    ]}
+                >
+                    <Input
+                        placeholder="Username"
+                    />
+                </Form.Item>
 
                 <Form.Item
                     name="email"
@@ -45,7 +59,6 @@ const LoginPage: React.FC = () => {
                 >
                     <Input
                         placeholder="Email"
-                        onChange={(e) => setEmail(e.target.value)}
                     />
                 </Form.Item>
 
@@ -64,25 +77,21 @@ const LoginPage: React.FC = () => {
                 >
                     <Input.Password
                         placeholder="Password"
-                        onChange={(e) => setPassword(e.target.value)}
                     />
                 </Form.Item>
 
                 <Form.Item>
                     <Button type="primary" htmlType="submit" block>
-                        Login
+                        Register
                     </Button>
                 </Form.Item>
-                <Form.Item>
-                    <GoogleLoginButton/>
-                </Form.Item>
                 <div style={{ textAlign: 'center' }}>
-                    Don't have an account?
-                        <Link to="/register" component={Typography.Link} style={{ marginLeft: '5px' }}>Sign up</Link>
+                    Already have an account?
+                        <Link to="/login" style={{ marginLeft: '5px' }}>Log in</Link>
                 </div>
             </Form>
         </div>
     );
 };
 
-export default LoginPage;
+export default RegistrationPage;

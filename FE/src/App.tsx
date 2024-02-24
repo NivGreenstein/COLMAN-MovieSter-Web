@@ -1,12 +1,15 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import LoginPage from './components/auth/LoginPage/LoginPage'; // Adjust the import path as necessary
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginPage from './components/auth/LoginPage/LoginPage';
+import RegistrationPage from "./components/auth/RegistrationPage/RegistrationPage";
 
 const App: React.FC = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<LoginPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegistrationPage />} />
+                <Route path="/" element={<RegistrationPage />} />
             </Routes>
         </Router>
     );
