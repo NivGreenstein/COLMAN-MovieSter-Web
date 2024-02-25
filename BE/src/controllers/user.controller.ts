@@ -75,7 +75,8 @@ export const createUser: UserCreate = async (req, res) => {
   try {
     const user = req.body as User & { password: string };
 
-    UserSchema.parse(user);
+    const { password: _, ...userWithoutPassword } = user;
+    UserSchema.parse(userWithoutPassword);
 
     const result = await service.createUser(user);
     return res.status(httpCode.CREATED).json(result);
