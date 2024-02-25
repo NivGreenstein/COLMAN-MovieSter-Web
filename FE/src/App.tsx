@@ -4,6 +4,7 @@ import LoginPage from './components/auth/LoginPage/LoginPage';
 import RegistrationPage from "./components/auth/RegistrationPage/RegistrationPage";
 import UserProfile from "./components/UserProfile/UserProfile/UserProfile";
 import EditProfile from "./components/UserProfile/EditUserProfile/EditProfile";
+import MoviesPage from "./components/MoviesPage/MoviesPage";
 
 const App: React.FC = () => {
     return (
@@ -13,7 +14,7 @@ const App: React.FC = () => {
                 <Route path="/register" element={<RegistrationPage />} />
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
-                <Route path="/" element={<LoginPage />} />
+                <Route path="/" element={<MoviesPage />} />
             </Routes>
         </Router>
     );
