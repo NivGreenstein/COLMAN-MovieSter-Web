@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { getDb } from '../DB/monogDb';
 import { User } from '../models/user.model';
 import { PartialUserUpdate, UserWithPassword } from '../controllers/user.controller';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt.util';
 
 const getCollection = async () => {
   const db = await getDb();
@@ -40,7 +41,7 @@ export const createUser = async (user: UserWithPassword) => {
   if (exsits) {
     throw new Error('User already exists');
   }
-  const hashedPassword = await bcrypt.hash(user.password, 10);
+  const hashedPassword = bcrypt.hashSync(user.password, 10);
 
   const result = await collection.insertOne({
     ...user,
@@ -53,6 +54,28 @@ export const createUser = async (user: UserWithPassword) => {
     throw new Error('Could not create user');
   }
   return result.insertedId;
+};
+
+export const login = async (email: string, password: string) => {
+  const collection = await getCollection();
+
+  const user = await collection.findOne({ email });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+
+  if (!isPasswordCorrect) {
+    throw new Error('Password is incorrect');
+  }
+
+  const { password: _, ...userWithoutPassword } = user;
+  const accessToken: string = generateAccessToken({ ...userWithoutPassword });
+  const refreshToken: string = await generateRefreshToken({ ...userWithoutPassword });
+
+  return { accessToken, refreshToken };
 };
 
 export const deleteUser = async (id: string) => {
