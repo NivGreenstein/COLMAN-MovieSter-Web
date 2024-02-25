@@ -1,16 +1,15 @@
-import e, { Request, Response } from 'express';
 import { User, UserSchema } from '../models/user.model';
 import * as service from '../services/user.service';
 import { ZodError } from 'zod';
 import httpCode from 'http-status-codes';
 import { RequestHandler } from 'express';
 import { ErrorResponse } from '../Globals';
-import { WithId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 
 export type PartialUserUpdate = { _id: string } & Partial<User>;
 export type UserWithPassword = User & { password: string };
 export type UserUpdate = RequestHandler<PartialUserUpdate, undefined | ErrorResponse>;
-export type UserCreate = RequestHandler<UserWithPassword, undefined | ErrorResponse>;
+export type UserCreate = RequestHandler<UserWithPassword, string | ObjectId | ErrorResponse>;
 export type UserDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
 export type UserGetById = RequestHandler<{ id: string }, WithId<User> | ErrorResponse>;
 export type UserGetByEmail = RequestHandler<{ email: string }, WithId<User> | ErrorResponse>;
@@ -72,14 +71,14 @@ export const getUserByEmail: UserGetByEmail = async (req, res) => {
   }
 };
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUser: UserCreate = async (req, res) => {
   try {
     const user = req.body as User & { password: string };
 
     UserSchema.parse(user);
 
     const result = await service.createUser(user);
-    return res.json(result);
+    return res.status(httpCode.CREATED).json(result);
   } catch (err: unknown) {
     if (err instanceof ZodError) {
       return res.status(httpCode.BAD_REQUEST).json({ message: err.issues });
@@ -91,11 +90,11 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser: UserDelete = async (req, res) => {
   try {
     const id = req.params.id;
     const result = await service.deleteUser(id);
-    return res.json(result);
+    return res.status(httpCode.NO_CONTENT).send();
   } catch (err: unknown) {
     if (err instanceof Error) {
       return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
