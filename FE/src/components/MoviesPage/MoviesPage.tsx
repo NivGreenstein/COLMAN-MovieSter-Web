@@ -3,6 +3,7 @@ import {Layout, Input, Row, Col, Avatar, Button} from 'antd';
 import Movie from '../MoviesPage/MovieTab';
 import {IMovie} from '../../types/IMovie';
 import {useNavigate} from 'react-router-dom';
+import AppHeader from "../header/AppHeader";
 
 const {Header, Content} = Layout;
 const {Search} = Input;
@@ -36,22 +37,7 @@ const MovieListPage: React.FC = () => {
 
     return (
         <Layout style={{minHeight: '100vh', minWidth: '100vw'}}>
-            <Header style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <Button type="primary" onClick={handleLogout}>Log out</Button>
-                <Search
-                    placeholder="Search movies"
-                    onSearch={handleSearch}
-                    enterButton
-                    size="large"
-                    style={{
-                        borderRadius: '25px',
-                        overflow: 'hidden',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                        width: '600px'
-                    }}
-                />
-                <Avatar size="large" onClick={goToProfile} /* src={yourProfileImageUrl} */ />
-            </Header>
+            <AppHeader handleLogout={handleLogout} handleSearch={handleSearch} goToProfile={goToProfile}></AppHeader>
             <Content style={{padding: '50px'}}>
                 <Row gutter={[16, 16]}>
                     {movies.map(movie => (
