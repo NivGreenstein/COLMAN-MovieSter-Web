@@ -1,21 +1,25 @@
 import { RequestHandler } from 'express';
-import { Comment, CommentSchema } from '../models/comment.model';
+import { Comment, CommentMongoDb, CommentSchema } from '../models/comment.model';
 import * as service from '../services/comment.service';
 import { ZodError } from 'zod';
 import httpCode from 'http-status-codes';
 import { ErrorResponse } from '../Globals';
 import { ObjectId, WithId } from 'mongodb';
 
-export type PartialCommentUpdate = { _id: string } & Partial<Comment>;
-export type CommentCreate = RequestHandler<Comment, string | ObjectId | ErrorResponse>;
+export type PartialCommentUpdate = WithId<Partial<CommentMongoDb>>;
+export type CommentUpdate = RequestHandler<PartialCommentUpdate, undefined | ErrorResponse>;
+export type CommentCreate = RequestHandler<Comment, { _id: string | ObjectId } | ErrorResponse>;
 export type CommentDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
-export type CommentGetById = RequestHandler<{ id: string }, WithId<Comment> | ErrorResponse>;
+export type CommentGetById = RequestHandler<{ id: string }, WithId<CommentMongoDb> | ErrorResponse>;
+export type CommentGetByMovieId = RequestHandler<{ movieId: number }, WithId<CommentMongoDb>[] | ErrorResponse>;
+export type CommentGetByUserId = RequestHandler<{ userId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
 
-export const updateComment: RequestHandler<PartialCommentUpdate, undefined | ErrorResponse> = async (req, res) => {
+export const updateComment: CommentUpdate = async (req, res) => {
   try {
     const comment: PartialCommentUpdate = req.body;
 
-    CommentSchema.partial().parse(comment);
+    const { _id: _, ...commentToParse } = comment;
+    CommentSchema.partial().parse(commentToParse);
 
     const result = await service.updateComment(comment);
     if (result.matchedCount === 0) {
@@ -49,6 +53,32 @@ export const getCommentById: CommentGetById = async (req, res) => {
   }
 };
 
+export const getCommentsByMovieId: CommentGetByMovieId = async (req, res) => {
+  try {
+    const movieId = req.params.movieId;
+    const result = await service.getCommentsByMovieId(movieId);
+    return res.json(result);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
+    }
+    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+  }
+};
+
+export const getCommentsByUserId: CommentGetByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const result = await service.getCommentsByUserId(userId);
+    return res.json(result);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
+    }
+    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+  }
+};
+
 export const createComment: CommentCreate = async (req, res) => {
   try {
     const comment = req.body as Comment;
@@ -56,7 +86,7 @@ export const createComment: CommentCreate = async (req, res) => {
     CommentSchema.parse(comment);
 
     const result = await service.createComment(comment);
-    return res.json(result);
+    return res.json({ _id: result });
   } catch (err: unknown) {
     if (err instanceof ZodError) {
       return res.status(httpCode.BAD_REQUEST).json({ message: err.issues });
