@@ -1,4 +1,4 @@
-import { User, UserSchema } from '../models/user.model';
+import { User, UserMongoDB, UserRegister, UserRegisterSchema, UserSchema } from '../models/user.model';
 import * as service from '../services/user.service';
 import { ZodError } from 'zod';
 import httpCode from 'http-status-codes';
@@ -7,12 +7,11 @@ import { ErrorResponse } from '../Globals';
 import { ObjectId, WithId } from 'mongodb';
 
 export type PartialUserUpdate = { _id: string } & Partial<User>;
-export type UserWithPassword = User & { password: string };
 export type UserUpdate = RequestHandler<PartialUserUpdate, undefined | ErrorResponse>;
-export type UserCreate = RequestHandler<UserWithPassword, string | ObjectId | ErrorResponse>;
+export type UserCreate = RequestHandler<UserRegister, { _id: string | ObjectId } | ErrorResponse>;
 export type UserDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
-export type UserGetById = RequestHandler<{ id: string }, WithId<User> | ErrorResponse>;
-export type UserGetByEmail = RequestHandler<{ email: string }, WithId<User> | ErrorResponse>;
+export type UserGetById = RequestHandler<{ id: string }, WithId<UserMongoDB> | ErrorResponse>;
+export type UserGetByEmail = RequestHandler<{ email: string }, WithId<UserMongoDB> | ErrorResponse>;
 
 export const updateUser: UserUpdate = async (req, res) => {
   try {
@@ -73,30 +72,16 @@ export const getUserByEmail: UserGetByEmail = async (req, res) => {
 
 export const createUser: UserCreate = async (req, res) => {
   try {
-    const user = req.body as User & { password: string };
+    const user = req.body as UserRegister;
 
-    const { password: _, ...userWithoutPassword } = user;
-    UserSchema.parse(userWithoutPassword);
+    UserRegisterSchema.parse(user);
 
     const result = await service.createUser(user);
-    return res.status(httpCode.CREATED).json(result);
+    return res.status(httpCode.CREATED).json({ _id: result });
   } catch (err: unknown) {
     if (err instanceof ZodError) {
       return res.status(httpCode.BAD_REQUEST).json({ message: err.issues });
     }
-    if (err instanceof Error) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
-    }
-    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
-  }
-};
-
-export const deleteUser: UserDelete = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const result = await service.deleteUser(id);
-    return res.status(httpCode.NO_CONTENT).send();
-  } catch (err: unknown) {
     if (err instanceof Error) {
       return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
     }

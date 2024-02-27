@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/user.model';
+import { User, UserMongoDB } from '../models/user.model';
 import { createRefreshToken } from '../services/refreshToken.service';
+import { WithId } from 'mongodb';
 
 const { ACCESS_TOKEN_SECRET: accessTokenSecret = '', REFRESH_TOKEN_SECRET: refreshTokenSecret = '' } = process.env;
 const ACCESS_TOKEN_LIFE = '15m';
@@ -15,11 +16,11 @@ export function generateAccessToken(user: User): string {
   return jwt.sign({ ...user }, accessTokenSecret, { expiresIn: ACCESS_TOKEN_LIFE });
 }
 
-export async function generateRefreshToken(user: User): Promise<string> {
+export async function generateRefreshToken(user: WithId<UserMongoDB>): Promise<string> {
   const token = jwt.sign({ ...user }, refreshTokenSecret, { expiresIn: REFRESH_TOKEN_LIFE });
 
   const expiresAt = new Date(Date.now() + REFRESH_TOKEN_LIFE_IN_SECONDS * 1000);
-  await createRefreshToken(token, user._id!!, expiresAt);
+  await createRefreshToken(token, user._id, expiresAt);
 
   return token;
 }

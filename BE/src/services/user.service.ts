@@ -1,13 +1,13 @@
 import { ObjectId, WithId } from 'mongodb';
 import bcrypt from 'bcrypt';
 import { getDb } from '../DB/monogDb';
-import { User } from '../models/user.model';
-import { PartialUserUpdate, UserWithPassword } from '../controllers/user.controller';
+import { UserMongoDB, UserRegister } from '../models/user.model';
+import { PartialUserUpdate } from '../controllers/user.controller';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.util';
 
 const getCollection = async () => {
   const db = await getDb();
-  return db.collection<User & { password: string }>('users');
+  return db.collection<UserMongoDB>('users');
 };
 
 export const updateUser = async (user: PartialUserUpdate) => {
@@ -17,9 +17,9 @@ export const updateUser = async (user: PartialUserUpdate) => {
   return await collection.updateOne({ _id: new ObjectId(user._id) }, { $set: { ...updatedUser } });
 };
 
-export const getUserById = async (id: string) => {
+export const getUserById = async (id: string): Promise<WithId<UserMongoDB> | null> => {
   const collection = await getCollection();
-  const user: WithId<User> | null = await collection.findOne({ _id: new ObjectId(id) }, { projection: { password: 0 } });
+  const user = await collection.findOne({ _id: new ObjectId(id) }, { projection: { password: 0 } });
   return user;
 };
 
@@ -28,7 +28,7 @@ export const getUserByEmail = async (email: string) => {
   return await collection.findOne({ email }, { projection: { password: 0 } });
 };
 
-export const createUser = async (user: UserWithPassword) => {
+export const createUser = async (user: UserRegister) => {
   const collection = await getCollection();
 
   const exsits = await collection.findOne(
@@ -65,7 +65,7 @@ export const login = async (email: string, password: string) => {
     throw new Error('User not found');
   }
 
-  const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+  const isPasswordCorrect = bcrypt.compareSync(password, user.password!!);
 
   if (!isPasswordCorrect) {
     throw new Error('Password is incorrect');
