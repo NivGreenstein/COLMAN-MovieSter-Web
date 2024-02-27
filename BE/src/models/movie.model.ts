@@ -4,7 +4,7 @@ export const MovieSchema = z
   .object({
     id: z.number(),
     title: z.string(),
-    description: z.string().email(),
+    description: z.string(),
     posterUrl: z.string().url(),
     rating: z.number().min(0).max(10),
   })
