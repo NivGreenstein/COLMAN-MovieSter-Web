@@ -5,6 +5,7 @@ import { ErrorResponse } from '../Globals';
 import httpCode from 'http-status-codes';
 import { generateAccessToken as generateAccessTokenUtil, verifyRefreshTokenWithSecret } from '../utils/jwt.util';
 import { User } from '../models/user.model';
+import { z } from 'zod';
 
 export type UserLogin = RequestHandler<{ email: string; password: string }, undefined | ErrorResponse>;
 export type UserLogout = RequestHandler<undefined, undefined | ErrorResponse>;
@@ -14,11 +15,14 @@ export const register = createUser;
 
 export const login: UserLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: 'Email and password are required' });
-    }
+    z.object({
+      email: z.string().email(),
+      password: z.string(),
+    })
+      .strict()
+      .parse(req.body);
 
+    const { email, password } = req.body;
     const result = await authService.login(email, password);
 
     if (!result) {
@@ -39,6 +43,9 @@ export const login: UserLogin = async (req, res) => {
     });
     return res.status(httpCode.OK).send();
   } catch (err: unknown) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json(err);
+    }
     if (err instanceof Error) {
       return res.status(400).json({ message: err.message });
     }
@@ -60,6 +67,7 @@ export const logout: UserLogout = async (req, res) => {
 
 export const generateAccessToken: UserGenereateAccessToken = async (req, res) => {
   const refreshToken = req.cookies['refresh-token'];
+  console.log(refreshToken);
   if (!refreshToken) {
     return res.status(httpCode.UNAUTHORIZED).json({ message: 'Unauthorized' });
   }
