@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { Avatar, Button, Card, Col, Row, Statistic, Layout } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import CommentList from "../../Comment/CommenListt";
+import {IUserComment} from "../../../types/IComment";
 
 const { Content } = Layout;
 
@@ -12,17 +14,23 @@ const UserProfile: React.FC = () => {
         profileImage: "", // Initial state with no image path
         moviesRated: 0,
         profileViews: 0,
+        comments: [] as IUserComment[], // Add comments to the state
     });
 
     useEffect(() => {
         const fetchData = async () => {
-                // This is where you would fetch data from your backend
-                // For now, we'll use static data
-                setUserData({
-                    profileImage: "path_to_profile_image.jpg",
-                    moviesRated: 120,
-                    profileViews: 89,
-                });
+            // This is where you would fetch data from your backend
+            // For now, we'll use static data
+            setUserData({
+                profileImage: "path_to_profile_image.jpg",
+                moviesRated: 120,
+                profileViews: 89,
+                comments: [
+                    // Replace with actual data fetched
+                    { movieTitle: 'Inception', rating: 5, text: 'Great movie!', date: new Date() },
+                    // ...more comments
+                ],
+            });
         };
 
         fetchData();
@@ -38,9 +46,10 @@ const UserProfile: React.FC = () => {
             <Content style={{ background: 'white', margin: 0, minHeight: '80vh' }}>
                 <Row justify="space-between" align="top" style={{ padding: '1vh' }}>
                     <Col>
-                        <Button onClick={handleEditProfileClick}  style={{ marginRight: '110vh' }} type="primary" shape="round" icon={<EditOutlined />}>
+                        <Button onClick={handleEditProfileClick}  style={{ marginRight: '110vh', marginBottom: '100px' }} type="primary" shape="round" icon={<EditOutlined />}>
                             Edit Profile
                         </Button>
+                        <CommentList comments={userData.comments} isMoviePage={false} />
                     </Col>
                     <Col style={{ alignItems: 'center' }} >
                         <Avatar  size={120} shape="circle" src={userData.profileImage} />
