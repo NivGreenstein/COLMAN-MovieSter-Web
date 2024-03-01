@@ -1,14 +1,14 @@
 {
   "name": "typescript-test",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
-    "prebuild": "rm -rf build",
+    "prebuild": "rm -rf dist",
     "build": "tsc",
-    "prestart": "yarn build",
+    "prestart": "npm run build",
     "start": "node build/index.js",
     "start:dev": "nodemon src/index.ts"
   },
@@ -19,6 +19,7 @@
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-xss-sanitizer": "^1.1.6",

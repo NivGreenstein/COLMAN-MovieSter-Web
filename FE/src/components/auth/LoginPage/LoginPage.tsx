@@ -1,18 +1,29 @@
 import React, {useState} from 'react';
-import {Button, Form, Input, Typography} from 'antd';
+import {Button, Form, Input, message, Typography} from 'antd';
 import GoogleLoginButton from "../GoogleLoginButton/GoogleLoginButton";
 import logo from "../../../assets/logo.png"; // Make sure this path is correct
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import authService from "../../../services/auth.service";
 
 
 const LoginPage: React.FC = () => {
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     const handleLogin = () => {
         form
             .validateFields()
-            .then((values) => {
-                console.log('Success:', values);
+            .then(async (values) => {
+                try {
+                    const {email, password} = values;
+                    const data = await authService.loginUser(email, password);
+                    console.log('Login success:', data);
+                    message.success('Login successful!');
+                    navigate('/movies');
+                } catch (error) {
+                    console.error('Login failed:', error);
+                    message.error('Login failed. Please check your email and password.');
+                }
             })
             .catch((errorInfo) => {
                 console.log('Failed:', errorInfo);
@@ -76,9 +87,9 @@ const LoginPage: React.FC = () => {
                 <Form.Item>
                     <GoogleLoginButton/>
                 </Form.Item>
-                <div style={{ textAlign: 'center' }}>
+                <div style={{textAlign: 'center'}}>
                     Don't have an account?
-                        <Link to="/register" component={Typography.Link} style={{ marginLeft: '5px' }}>Sign up</Link>
+                    <Link to="/register" component={Typography.Link} style={{marginLeft: '5px'}}>Sign up</Link>
                 </div>
             </Form>
         </div>

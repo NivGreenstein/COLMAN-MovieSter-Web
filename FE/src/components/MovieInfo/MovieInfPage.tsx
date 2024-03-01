@@ -4,7 +4,7 @@ import CommentList from '../Comments/CommentsList';
 import {Comment} from '../../types/IComment';
 import {IMovie} from '../../types/IMovie';
 import {useParams} from "react-router-dom";
-import {fetchMovieById} from "../../services/moviesService";
+import {fetchMovieById} from "../../services/movies.service";
 
 
 const {Content} = Layout;

@@ -13,7 +13,7 @@ dotenvConfig();
 const { PORT: serverPort } = process.env;
 const app = express();
 const corsOptions: CorsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:4200'],
+  origin: ['http://localhost:3000', 'http://localhost:4200', 'http://localhost:5173'],
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
