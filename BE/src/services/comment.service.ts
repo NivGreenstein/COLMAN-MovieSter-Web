@@ -38,6 +38,8 @@ export const getCommentsByMovieId = async (movieId: number): Promise<WithId<Comm
         },
       },
       { $unwind: '$user' },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      { $project: { 'user.password': 0 } },
       { $sort: { createdAt: -1 } },
     ])
     .toArray();
@@ -52,7 +54,7 @@ export const getCommentsByUserId = async (userId: string): Promise<WithId<Commen
 
 export const updateComment = async (comment: Partial<WithId<Comment>>): Promise<UpdateResult<CommentMongoDb>> => {
   const collection = await getCollection();
-  return await collection.updateOne(
+  const data = await collection.updateOne(
     { _id: new ObjectId(comment._id) },
     {
       $set: {
@@ -62,6 +64,7 @@ export const updateComment = async (comment: Partial<WithId<Comment>>): Promise<
       },
     }
   );
+  return data;
 };
 
 export const deleteComment = async (commentId: string): Promise<DeleteResult> => {
