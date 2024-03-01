@@ -1,7 +1,9 @@
 import { Router } from 'express';
-import { updateUser, getUserById } from '../controllers/user.controller';
+import { updateUser, getUserById, getUserByEmail } from '../controllers/user.controller';
+
 const router = Router();
 
+router.get('/email/:email', getUserByEmail);
 router.get('/:id', getUserById);
 router.patch('/', updateUser);
 
