@@ -33,18 +33,15 @@ const loginUser = async (email: string, password: string) => {
     return response;
 };
 
-export const checkSession = async () => {
-    const response = await fetch('/api/check-session'); // Your endpoint to verify session
-    return response.ok;
-};
-
 export const logout = async () => {
-    await fetch('/api/logout', { method: 'POST' });
+    const response = await fetch('http://localhost:8080/logout', { method: 'POST', credentials: 'include' });
+    if (!response.ok) {
+        throw new Error('Logout failed');
+    }
 };
 
 export default {
     registerUser,
     loginUser,
-    checkSession,
     logout
 };
