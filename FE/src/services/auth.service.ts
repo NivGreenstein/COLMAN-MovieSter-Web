@@ -33,7 +33,18 @@ const loginUser = async (email: string, password: string) => {
     return response;
 };
 
+export const checkSession = async () => {
+    const response = await fetch('/api/check-session'); // Your endpoint to verify session
+    return response.ok;
+};
+
+export const logout = async () => {
+    await fetch('/api/logout', { method: 'POST' });
+};
+
 export default {
     registerUser,
-    loginUser
+    loginUser,
+    checkSession,
+    logout
 };

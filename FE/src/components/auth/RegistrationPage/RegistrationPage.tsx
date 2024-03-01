@@ -27,7 +27,7 @@ const RegistrationPage: React.FC = () => {
                     const data = await authService.registerUser(payload);
                     console.log(data);
                     message.success('Registration successful!');
-                    navigate('/movies')
+                    navigate('/login')
                 } catch (error) {
                     console.error('Registration failed:', error);
                     message.error('Registration failed.');
