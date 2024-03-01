@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { Avatar, Button, Card, Col, Row, Statistic, Layout } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import CommentList from "../../Comment/CommenListt";
+import CommentList from "../../Comments/CommentsList";
 import {IUserComment} from "../../../types/IComment";
 
 const { Content } = Layout;

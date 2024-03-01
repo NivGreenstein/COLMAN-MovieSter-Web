@@ -1,6 +1,6 @@
 import React from 'react';
 import {Tooltip, List, Rate} from 'antd';
-import {IUserComment, IMovieComment} from '../../types/IComment'; // Assuming this is the correct path
+import {IUserComment, IMovieComment} from '../../types/IComment';
 import {Comment as AntComment} from "@ant-design/compatible";
 import moment from 'moment';
 
