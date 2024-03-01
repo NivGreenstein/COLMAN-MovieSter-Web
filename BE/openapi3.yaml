@@ -451,6 +451,25 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         5XX:
           $ref: "#/components/responses/UnexpectedError"
+  /logout:
+    post:
+      summary: logout user
+      operationId: logout
+      tags:
+       - default
+       - users
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: user logged out successfuly and cookies deleted and revoked
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
 components:
   responses:
     Unauthorized:
