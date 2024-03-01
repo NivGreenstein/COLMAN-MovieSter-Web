@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 import httpCode from 'http-status-codes';
 import { RequestHandler } from 'express';
 import { ObjectId, WithId } from 'mongodb';
@@ -19,7 +19,11 @@ export const updateUser: UserUpdate = async (req, res): Promise<void> => {
   try {
     const user = req.body as PartialUserUpdate;
 
-    userSchema.partial().parse(user);
+    userSchema
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      .extend({ _id: z.string().regex(/^[0-9a-fA-F]{24}$/) })
+      .partial()
+      .parse(user);
 
     const result = await service.updateUser(user);
 
