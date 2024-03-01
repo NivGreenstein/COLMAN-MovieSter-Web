@@ -16,7 +16,7 @@ const App: React.FC = () => {
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/movie/:id" element={<MovieInfoPage />} />
-                <Route path="/" element={<MoviesPage />} />
+                <Route path="/movies" element={<MoviesPage />} />
             </Routes>
         </Router>
     );

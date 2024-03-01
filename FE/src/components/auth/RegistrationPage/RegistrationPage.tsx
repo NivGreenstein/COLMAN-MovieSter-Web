@@ -1,21 +1,41 @@
-import { Button, Form, Input } from 'antd';
+import {Button, Form, Input, message} from 'antd';
 import logo from "../../../assets/logo.png";
 import React from "react";
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import authService from "../../../services/auth.service";
 
 
 
 const RegistrationPage: React.FC = () => {
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     const handleRegistration = () => {
+        const defaultProfilePictureUrl = 'http://placekitten.com/200/200';
         form
             .validateFields()
-            .then((values) => {
-                console.log('Success:', values);
+            .then(async (values) => {
+                const {username, password, email} = values;
+
+                const payload = {
+                    username,
+                    password,
+                    email,
+                    profilePictureUrl: defaultProfilePictureUrl
+                };
+                try {
+                    const data = await authService.registerUser(payload);
+                    console.log(data);
+                    message.success('Registration successful!');
+                    navigate('/movies')
+                } catch (error) {
+                    console.error('Registration failed:', error);
+                    message.error('Registration failed.');
+                }
             })
             .catch((errorInfo) => {
                 console.log('Failed:', errorInfo);
+                message.error('Please correct the errors in the form.');
             });
     };
 
