@@ -1,10 +1,11 @@
-import { MongoClient } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 import { config } from 'dotenv';
+
 config();
 
 let mongodbClient: MongoClient;
 
-const initDbConnection = async () => {
+const initDbConnection = async (): Promise<void> => {
   const { MONGO_DB_URL: connectionString = '', DB_NAME: dbName = '' } = process.env;
   if (!connectionString || !dbName) {
     throw new Error('MONGO_DB_URL or DB_NAME not found in .env file');
@@ -20,7 +21,7 @@ const initDbConnection = async () => {
   mongodbClient = await client.connect();
 };
 
-export const getMongoDbClient = async () => {
+export const getMongoDbClient = async (): Promise<MongoClient> => {
   if (mongodbClient) {
     return mongodbClient;
   }
@@ -28,7 +29,7 @@ export const getMongoDbClient = async () => {
   return mongodbClient;
 };
 
-export const getDb = async () => {
+export const getDb = async (): Promise<Db> => {
   const db = await getMongoDbClient();
   const { DB_NAME: dbName = '' } = process.env;
   return db.db(dbName);
@@ -36,6 +37,6 @@ export const getDb = async () => {
 
 export const closeMongoDbConnection = async () => {
   if (mongodbClient) {
-    return await mongodbClient.close();
+    await mongodbClient.close();
   }
 };

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const UserSchema = z
+export const userSchema = z
   .object({
     username: z.string(),
     email: z.string().email(),
@@ -8,18 +8,18 @@ export const UserSchema = z
   })
   .strict();
 
-export type User = z.infer<typeof UserSchema>;
+export type User = z.infer<typeof userSchema>;
 
-export const UserRegisterSchema = UserSchema.extend({
+export const userRegisterSchema = userSchema.extend({
   password: z.string().min(8),
 });
 
-export type UserRegister = z.infer<typeof UserRegisterSchema>;
+export type UserRegister = z.infer<typeof userRegisterSchema>;
 
-export const UserMongoDBSchema = UserSchema.extend({
+export const userMongoDBSchema = userSchema.extend({
   password: z.string().min(8).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export type UserMongoDB = z.infer<typeof UserMongoDBSchema>;
+export type UserMongoDB = z.infer<typeof userMongoDBSchema>;

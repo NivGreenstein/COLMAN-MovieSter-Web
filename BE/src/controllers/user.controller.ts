@@ -1,38 +1,45 @@
-import { User, UserMongoDB, UserRegister, UserRegisterSchema, UserSchema } from '../models/user.model';
-import * as service from '../services/user.service';
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { ZodError } from 'zod';
 import httpCode from 'http-status-codes';
 import { RequestHandler } from 'express';
-import { ErrorResponse } from '../Globals';
 import { ObjectId, WithId } from 'mongodb';
+import { ErrorResponse } from '../Globals';
+import * as service from '../services/user.service';
+import { User, UserMongoDB, UserRegister, userRegisterSchema, userSchema } from '../models/user.model';
 
-export type PartialUserUpdate = { _id: string } & Partial<User>;
+export type PartialUserUpdate = WithId<Partial<User>>;
 export type UserUpdate = RequestHandler<PartialUserUpdate, undefined | ErrorResponse>;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export type UserCreate = RequestHandler<UserRegister, { _id: string | ObjectId } | ErrorResponse>;
 export type UserDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
 export type UserGetById = RequestHandler<{ id: string }, WithId<UserMongoDB> | ErrorResponse>;
 export type UserGetByEmail = RequestHandler<{ email: string }, WithId<UserMongoDB> | ErrorResponse>;
 
-export const updateUser: UserUpdate = async (req, res) => {
+export const updateUser: UserUpdate = async (req, res): Promise<void> => {
   try {
-    const user: PartialUserUpdate = req.body;
+    const user = req.body as PartialUserUpdate;
 
-    UserSchema.partial().parse(user);
+    userSchema.partial().parse(user);
 
     const result = await service.updateUser(user);
-    console.log(result);
+
     if (result.matchedCount === 0) {
-      return res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
+      res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
+      return;
     }
-    return res.status(httpCode.NO_CONTENT).send();
+    res.status(httpCode.NO_CONTENT).send();
+    return;
   } catch (err: unknown) {
     if (err instanceof ZodError) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.issues });
+      res.status(httpCode.BAD_REQUEST).json({ message: err.issues });
+      return;
     }
     if (err instanceof Error) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
+      res.status(httpCode.BAD_REQUEST).json({ message: err.message });
+      return;
     }
-    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+    res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+    return;
   }
 };
 
@@ -74,9 +81,10 @@ export const createUser: UserCreate = async (req, res) => {
   try {
     const user = req.body as UserRegister;
 
-    UserRegisterSchema.parse(user);
+    userRegisterSchema.parse(user);
 
     const result = await service.createUser(user);
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     return res.status(httpCode.CREATED).json({ _id: result });
   } catch (err: unknown) {
     if (err instanceof ZodError) {
