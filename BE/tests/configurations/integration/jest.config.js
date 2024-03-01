@@ -1,9 +1,7 @@
-const jestMongoDb = require('@shelf/jest-mongodb/jest-preset');
 const tsJest = require('ts-jest/jest-preset');
 
 module.exports = {
   ...tsJest,
-  ...jestMongoDb,
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
   },
@@ -14,7 +12,7 @@ module.exports = {
   rootDir: '../../../.',
   testMatch: ['<rootDir>/tests/integration/**/*.spec.ts'],
   setupFiles: ['<rootDir>/tests/configurations/jest.setup.ts'],
-  setupFilesAfterEnv: ['jest-openapi', '<rootDir>/tests/configurations/initJestOpenapi.setup.ts'],
+  // setupFilesAfterEnv: ['jest-openapi', '<rootDir>/tests/configurations/initJestOpenapi.setup.ts'],
   reporters: [
     'default',
     [
