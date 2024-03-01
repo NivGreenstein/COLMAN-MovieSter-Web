@@ -11,7 +11,7 @@ export type CommentUpdate = RequestHandler<PartialCommentUpdate, undefined | Err
 export type CommentCreate = RequestHandler<Comment, { _id: string | ObjectId } | ErrorResponse>;
 export type CommentDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
 export type CommentGetById = RequestHandler<{ id: string }, WithId<CommentMongoDb> | ErrorResponse>;
-export type CommentGetByMovieId = RequestHandler<{ movieId: number }, WithId<CommentMongoDb>[] | ErrorResponse>;
+export type CommentGetByMovieId = RequestHandler<{ movieId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
 export type CommentGetByUserId = RequestHandler<{ userId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
 
 export const updateComment: CommentUpdate = async (req, res) => {
@@ -56,7 +56,7 @@ export const getCommentById: CommentGetById = async (req, res) => {
 export const getCommentsByMovieId: CommentGetByMovieId = async (req, res) => {
   try {
     const movieId = req.params.movieId;
-    const result = await service.getCommentsByMovieId(movieId);
+    const result = await service.getCommentsByMovieId(parseFloat(movieId));
     return res.json(result);
   } catch (err: unknown) {
     if (err instanceof Error) {

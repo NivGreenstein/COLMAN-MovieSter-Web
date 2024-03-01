@@ -22,6 +22,7 @@ export const updateUser: UserUpdate = async (req, res): Promise<void> => {
     userSchema
       // eslint-disable-next-line @typescript-eslint/naming-convention
       .extend({ _id: z.string().regex(/^[0-9a-fA-F]{24}$/) })
+      .strict()
       .partial()
       .parse(user);
 
