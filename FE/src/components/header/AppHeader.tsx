@@ -29,7 +29,11 @@ const AppHeader: React.FC<{ profileImageUrl?: string }> = ({ profileImageUrl }) 
     };
 
     const onSelect = (value, option) => {
-        navigate(`/movie/${option.value}`);
+        navigate(`/movie/${option.key}`);
+    };
+
+    const onSearch = (searchText) => {
+        setSearchValue(searchText);
     };
 
     return (
@@ -43,7 +47,7 @@ const AppHeader: React.FC<{ profileImageUrl?: string }> = ({ profileImageUrl }) 
                     overflow: 'hidden',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                     width: '600px', }}
-                onSearch={setSearchValue}
+                onSearch={onSearch}
                 placeholder="Search movies"
             />
             <Avatar size="large" onClick={goToProfile} icon={<UserOutlined/>} src={profileImageUrl}/>

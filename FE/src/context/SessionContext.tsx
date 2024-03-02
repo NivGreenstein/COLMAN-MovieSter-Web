@@ -42,7 +42,7 @@ export const SessionProvider = ({children}) => {
         }, []);
 
         if (isLoading) {
-            return <div>Loading...</div>;
+            return <div style={{ width: '100%', height: 'auto' , minHeight: '100vh', minWidth: '100vw'}}>Loading...</div>;
         }
 
         return (

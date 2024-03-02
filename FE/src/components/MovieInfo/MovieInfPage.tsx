@@ -23,7 +23,7 @@ const MovieInfoPage: React.FC = () => {
   }, [id]);
 
   if (!movie) {
-    return <div>Loading...</div>;
+    return <div style={{ width: '100%', height: 'auto' , maxHeight: '100vh', maxWidth: '100vw'}}>Loading...</div>;
   }
   return (
     <Layout>

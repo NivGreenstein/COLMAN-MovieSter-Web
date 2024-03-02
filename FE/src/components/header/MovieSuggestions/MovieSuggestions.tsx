@@ -15,7 +15,8 @@ const useMovieSuggestions = (searchValue) => {
                     const data = await searchMovies(searchValue);
                     if (isActive) {
                         setSuggestions(data.map((movie: IMovie) => ({
-                            value: movie.id.toString(),
+                            key: movie.id.toString(),
+                            value: movie.title.toString(),
                             label: (
                                 <div style={{display: 'flex', alignItems: 'center'}}>
                                     <img src={movie.posterUrl} alt={movie.title} style={{width: 50, marginRight: 10}}/>
