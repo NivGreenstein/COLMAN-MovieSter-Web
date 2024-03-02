@@ -18,22 +18,31 @@ const registerUser = async (payload: IUser) => {
 };
 
 const loginUser = async (email: string, password: string) => {
-    const response = await fetch("http://localhost:8080/login", {
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/login`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email, password}),
+        body: JSON.stringify({ email, password }),
     });
 
     if (!response.ok) {
         throw new Error('Login failed');
     }
-    // Here you might want to store the login token received from the server
+
     return response;
+};
+
+export const logout = async () => {
+    const response = await fetch('http://localhost:8080/logout', { method: 'POST', credentials: 'include' });
+    if (!response.ok) {
+        throw new Error('Logout failed');
+    }
 };
 
 export default {
     registerUser,
-    loginUser
+    loginUser,
+    logout
 };

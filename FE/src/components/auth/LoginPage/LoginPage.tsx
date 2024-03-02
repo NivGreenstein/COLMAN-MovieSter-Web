@@ -4,11 +4,14 @@ import GoogleLoginButton from "../GoogleLoginButton/GoogleLoginButton";
 import logo from "../../../assets/logo.png"; // Make sure this path is correct
 import {Link, useNavigate} from 'react-router-dom';
 import authService from "../../../services/auth.service";
+import {useSession} from "../../../context/SessionContext";
 
 
 const LoginPage: React.FC = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const {setIsLoggedIn} = useSession();
+
 
     const handleLogin = () => {
         form
@@ -17,6 +20,7 @@ const LoginPage: React.FC = () => {
                 try {
                     const {email, password} = values;
                     const data = await authService.loginUser(email, password);
+                    setIsLoggedIn(true);
                     console.log('Login success:', data);
                     message.success('Login successful!');
                     navigate('/movies');
