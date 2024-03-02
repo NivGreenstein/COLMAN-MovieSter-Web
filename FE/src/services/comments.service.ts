@@ -53,4 +53,18 @@ const createComment = async (comment: CommentBase): Promise<{ _id: string } | nu
   }
 };
 
-export { getCommentsByMovieId, getCommentsByUserId, createComment };
+const deleteComment = async (commentId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments/${commentId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Deleting comment failed', error);
+    return false;
+  }
+};
+
+
+export { getCommentsByMovieId, getCommentsByUserId, createComment, deleteComment };

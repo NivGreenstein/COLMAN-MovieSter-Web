@@ -1,17 +1,17 @@
-import React, {useContext, useState} from 'react';
-import { Tooltip, List, Rate, Avatar, Button } from 'antd';
+import React, {useContext} from 'react';
+import {Tooltip, List, Rate, Avatar, Button, message} from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { Comment } from '../../types/IComment';
-import { IUser } from "../../types/IUser";
 import {SessionContext} from "../../context/SessionContext";
+import {deleteComment} from "../../services/comments.service";
 
 interface CommentListProps {
     comments: Comment[];
     isMoviePage: boolean;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage }) => {
+const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setComments  }) => {
     const { loggedUser } = useContext(SessionContext); // Consuming the context
 
     const handleEditComment = (commentId: string) => {
@@ -19,9 +19,15 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage }) => {
         console.log(`Edit comment ${commentId}`);
     };
 
-    const handleDeleteComment = (commentId: string) => {
-        // Placeholder for delete comment logic
-        console.log(`Delete comment ${commentId}`);
+    const handleDeleteComment = async (commentId) => {
+        const isDeleted = await deleteComment(commentId);
+        if (isDeleted) {
+            message.success('Comment deleted successfully');
+            // Remove the deleted comment from the local state to update the UI
+            setComments(comments.filter(comment => comment._id !== commentId));
+        } else {
+            message.error('Failed to delete comment');
+        }
     };
 
     return (

@@ -104,7 +104,7 @@ const MovieInfoPage: React.FC = () => {
               isEditMode={false}
               restartStates={restartAddCommentStates}
             />
-            <CommentList comments={comments} isMoviePage={true} />
+            <CommentList comments={comments} isMoviePage={true} setComments={setComments} />
           </Col>
         </Row>
       </Content>

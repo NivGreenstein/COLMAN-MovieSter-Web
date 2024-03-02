@@ -54,7 +54,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
             >
               Edit Profile
             </Button>
-            <CommentList comments={comments} isMoviePage={false} />
+            <CommentList comments={comments} isMoviePage={false} setComments={setComments} />
           </Col>
           <Col style={{ alignItems: 'center' }}>
             <Avatar size={120} shape="circle" src={user?.profilePictureUrl} />
