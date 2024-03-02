@@ -1,29 +1,33 @@
-import {IMovie} from '../types/IMovie';
+import { IMovie } from '../types/IMovie';
 
 const fetchMovieById = async (id: string) => {
-    try {
-        const response = await fetch(`${import.meta.env.VITE_API_URI}/movies/${id}`, {headers: {credentials: 'include'}});
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: IMovie = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Fetching movie by ID failed', error);
-        return null;
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/movies/${id}`, {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    const data: IMovie = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching movie by ID failed', error);
+    return null;
+  }
 };
 
 const getNowPlayingMovies = async (): Promise<IMovie[]> => {
-    const response = await fetch(import.meta.env.VITE_API_URI + '/movies/now-playing', {headers: {credentials: 'include'}});
-    const data: IMovie[] = await response.json();
-    return data;
+  const response = await fetch(import.meta.env.VITE_API_URI + '/movies/now-playing', { credentials: 'include' });
+  const data: IMovie[] = await response.json();
+  return data;
 };
 
 const searchMovies = async (searchValue: string): Promise<IMovie[]> => {
-    const response = await fetch(import.meta.env.VITE_API_URI + '/movies/search/' + searchValue);
-    const data: IMovie[] = await response.json();
-    return data;
+  const response = await fetch(import.meta.env.VITE_API_URI + '/movies/search/' + searchValue, {
+    credentials: 'include',
+  });
+  const data: IMovie[] = await response.json();
+  return data;
 };
 
-export {fetchMovieById, getNowPlayingMovies, searchMovies};
+export { fetchMovieById, getNowPlayingMovies, searchMovies };

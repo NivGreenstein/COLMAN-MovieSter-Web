@@ -2,7 +2,9 @@ import { Comment } from '../types/IComment';
 
 const getCommentsByMovieId = async (movieId: string): Promise<Comment[]> => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments/movie/${movieId}`);
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments/movie/${movieId}`, {
+      credentials: 'include',
+    });
     const data: Comment[] = await response.json();
     return data;
   } catch (error) {
@@ -13,7 +15,7 @@ const getCommentsByMovieId = async (movieId: string): Promise<Comment[]> => {
 
 const getCommentsByUserId = async (userId: string): Promise<Comment[]> => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments/user/${userId}`);
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments/user/${userId}`, { credentials: 'include' });
     const data: Comment[] = await response.json();
     return data;
   } catch (error) {
