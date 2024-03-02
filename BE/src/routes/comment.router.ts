@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 router.post('/', createComment);
-router.put('/', updateComment);
+router.patch('/', updateComment);
 router.get('/:id', getCommentById);
 router.delete('/:id', deleteComment);
 router.get('/movie/:movieId', getCommentsByMovieId);
