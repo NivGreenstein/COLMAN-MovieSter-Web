@@ -7,7 +7,6 @@ interface AddCommentDialogProps {
   setIsModalVisible: (value: boolean) => void;
   restartStates: () => void;
   handleSubmit: () => void;
-  handleDelete: () => void;
   rating: number;
   setRating: (value: number) => void;
   description: string;
@@ -24,7 +23,6 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
   rating,
   setDescription,
   setRating,
-  handleDelete,
 }) => {
   const handleOk = () => {
     handleSubmit();
@@ -39,16 +37,7 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
   return (
     <>
       <Modal
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            {isEditMode ? 'Edit Comment' : 'Create Comment'}
-            {isEditMode && (
-              <Button danger onClick={handleDelete}>
-                Delete
-              </Button>
-            )}
-          </div>
-        }
+        title={isEditMode ? 'Edit Comment' : 'Create Comment'}
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}

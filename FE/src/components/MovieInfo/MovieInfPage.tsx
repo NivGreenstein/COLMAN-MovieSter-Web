@@ -111,6 +111,10 @@ const MovieInfoPage: React.FC = () => {
     }
   };
 
+  const handleEditComment = () => {
+    setIsModalVisible(true);
+  };
+
   if (!movie) {
     return <div style={{ width: '100%', height: 'auto', maxHeight: '100vh', maxWidth: '100vw' }}>Loading...</div>;
   }
@@ -141,8 +145,8 @@ const MovieInfoPage: React.FC = () => {
             </Row>
             <Paragraph>{movie.description}</Paragraph>
             <Divider />
-            <Button type="primary" onClick={showModal}>
-              {userExistingComment ? 'Edit Comment' : 'Create Comment'}
+            <Button type="primary" onClick={showModal} disabled={!!userExistingComment}>
+              Create Comment
             </Button>
             <AddCommentDialog
               isModalVisible={isModalVisible}
@@ -154,9 +158,13 @@ const MovieInfoPage: React.FC = () => {
               setDescription={setDescription}
               isEditMode={!!userExistingComment}
               restartStates={restartAddCommentStates}
-              handleDelete={handleOnDeleteComment}
             />
-            <CommentList comments={comments} isMoviePage={true} />
+            <CommentList
+              comments={comments}
+              isMoviePage={true}
+              handleDeleteComment={handleOnDeleteComment}
+              handleEditComment={handleEditComment}
+            />
           </Col>
         </Row>
       </Content>
