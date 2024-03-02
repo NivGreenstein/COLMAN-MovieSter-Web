@@ -36,7 +36,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
     navigate('/edit-profile'); // The route you'll use for the edit profile page
   };
 
-  if (!user || !comments.length) {
+  if (!user) {
     return <div>Loading...</div>;
   }
 
@@ -64,7 +64,9 @@ const UserProfile: React.FC<UserProfileProps> = () => {
                   <Statistic title="Movies Rated" value={comments.length} />
                   <Statistic
                     title="Rating Average"
-                    value={comments.reduce((sum, comment) => comment.rating + sum, 0) / comments.length}
+                    value={
+                      comments.length ? comments.reduce((sum, comment) => comment.rating + sum, 0) / comments.length : 0
+                    }
                   />
                 </Card>
               </Col>
