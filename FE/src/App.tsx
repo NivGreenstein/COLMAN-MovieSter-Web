@@ -19,6 +19,7 @@ const App: React.FC = () => {
                 <Route path="/register" element={<RegistrationPage />} />
                 <Route path="/" element={<LayoutWithHeader> <ProtectedRoute><MoviesPage /></ProtectedRoute> </LayoutWithHeader>} />
                 <Route path="/profile" element={<LayoutWithHeader> <ProtectedRoute><UserProfile /></ProtectedRoute> </LayoutWithHeader>} />
+                <Route path="/profile/:id" element={<LayoutWithHeader> <ProtectedRoute><UserProfile /></ProtectedRoute> </LayoutWithHeader>} />
                 <Route path="/edit-profile" element={<LayoutWithHeader> <ProtectedRoute><EditProfile /></ProtectedRoute> </LayoutWithHeader>} />
                 <Route path="/movie/:id" element={<LayoutWithHeader> <ProtectedRoute><MovieInfoPage /></ProtectedRoute> </LayoutWithHeader>} />
                 <Route path="/movies" element={<LayoutWithHeader> <ProtectedRoute><MoviesPage /></ProtectedRoute> </LayoutWithHeader>} />
