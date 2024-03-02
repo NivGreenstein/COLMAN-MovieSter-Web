@@ -10,12 +10,13 @@ const {Search} = Input;
 
 const AppHeader: React.FC<{ profileImageUrl?: string }> = ({profileImageUrl}) => {
   const navigate = useNavigate();
-    const {setIsLoggedIn} = useSession();
+    const {setIsLoggedIn, setLoggedUser} = useSession();
 
     const handleLogout = async () => {
         try {
             await logout();
             setIsLoggedIn(false);
+            setLoggedUser(null);
             navigate('/login');
         } catch (error) {
             console.error("Logout failed", error);
