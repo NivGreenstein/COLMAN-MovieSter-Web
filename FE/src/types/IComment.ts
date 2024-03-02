@@ -15,12 +15,16 @@
 // export type Comment = IUserComment | IMovieComment;
 
 import { z } from 'zod';
+import { userSchema } from './IUser';
+import { movieSchema } from './IMovie';
 
 export const CommentSchema = z
   .object({
     _id: z.string().regex(/^[0-9a-fA-F]{24}$/),
     movieId: z.number(),
+    movie: movieSchema.optional(),
     userId: z.string().regex(/^[0-9a-fA-F]{24}$/),
+    user: userSchema.optional(),
     mainCommentId: z
       .string()
       .regex(/^[0-9a-fA-F]{24}$/)
