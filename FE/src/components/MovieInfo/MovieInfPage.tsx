@@ -61,7 +61,7 @@ const MovieInfoPage: React.FC = () => {
   };
 
   if (!movie) {
-    return <div style={{ width: '100%', height: 'auto' , maxHeight: '100vh', maxWidth: '100vw'}}>Loading...</div>;
+    return <div style={{ width: '100%', height: 'auto', maxHeight: '100vh', maxWidth: '100vw' }}>Loading...</div>;
   }
 
   return (
@@ -73,7 +73,20 @@ const MovieInfoPage: React.FC = () => {
           </Col>
           <Col span={16}>
             <Title level={2}>{movie.title}</Title>
-            <Rate value={movie.rating / 2} />
+            <Row gutter={4}>
+              <Col span={4}>
+                <p>Official Rating:</p>
+                <Rate value={movie.rating / 2} />
+              </Col>
+              <Col span={4}>
+                <p>Users' Rating</p>
+                <Rate
+                  value={
+                    comments.length ? comments.reduce((sum, comment) => comment.rating + sum, 0) / comments.length : 0
+                  }
+                />
+              </Col>
+            </Row>
             <Paragraph>{movie.description}</Paragraph>
             <Divider />
             <Button type="primary" onClick={showModal}>
