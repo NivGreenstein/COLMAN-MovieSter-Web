@@ -42,7 +42,7 @@ const EditUserProfile: React.FC = () => {
 
     return (
         <Layout>
-            <Content style={{ padding: '50px', maxWidth: '400px', margin: '0 auto' }}>
+            <Content style={{ padding: '50px',minHeight: '100vh', minWidth: '100vw' }}>
                 <Form layout="vertical" form={form} onFinish={handleSave}>
                     <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                         <Upload
