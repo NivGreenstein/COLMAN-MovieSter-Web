@@ -76,11 +76,12 @@ const MovieInfoPage: React.FC = () => {
             <Row gutter={4}>
               <Col span={4}>
                 <p>Official Rating:</p>
-                <Rate value={movie.rating / 2} />
+                <Rate disabled value={movie.rating / 2} />
               </Col>
               <Col span={4}>
                 <p>Users' Rating</p>
                 <Rate
+                  disabled
                   value={
                     comments.length ? comments.reduce((sum, comment) => comment.rating + sum, 0) / comments.length : 0
                   }
