@@ -1,6 +1,8 @@
 import { DeleteResult, ObjectId, UpdateResult, WithId } from 'mongodb';
 import { getDb } from '../DB/monogDb';
 import { Comment, CommentMongoDb } from '../models/comment.model';
+import { Movie } from '../models/movie.model';
+import { fetchMovieById } from './movie.service';
 
 const getCollection = async () => {
   const db = await getDb();
@@ -46,10 +48,17 @@ export const getCommentsByMovieId = async (movieId: number): Promise<WithId<Comm
   return comments as WithId<CommentMongoDb>[];
 };
 
-export const getCommentsByUserId = async (userId: string): Promise<WithId<CommentMongoDb>[]> => {
+export const getCommentsByUserId = async (userId: string): Promise<WithId<CommentMongoDb & { movie: Movie | undefined }>[]> => {
   const collection = await getCollection();
   const comments = await collection.find({ userId: new ObjectId(userId) }).toArray();
-  return comments;
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  const commentsWithMovies = await Promise.all(
+    comments.map(async (comment) => {
+      const movie = await fetchMovieById(comment.movieId);
+      return { ...comment, movie };
+    })
+  );
+  return commentsWithMovies;
 };
 
 export const updateComment = async (comment: Partial<WithId<Comment>>): Promise<UpdateResult<CommentMongoDb>> => {
