@@ -18,13 +18,8 @@ const registerUser = async (payload: IUser) => {
 };
 
 const loginUser = async (email: string, password: string) => {
-    const response = await fetch("http://localhost:8080/login", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({email, password}),
-    });
+    credentials: 'include',
+    headers: {
 
     if (!response.ok) {
         throw new Error('Login failed');
