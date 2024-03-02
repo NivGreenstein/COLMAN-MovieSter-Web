@@ -61,14 +61,15 @@ export const getCommentsByUserId = async (userId: string): Promise<WithId<Commen
   return commentsWithMovies;
 };
 
-export const updateComment = async (comment: Partial<WithId<Comment>>): Promise<UpdateResult<CommentMongoDb>> => {
+export const updateComment = async (comment: Partial<WithId<Comment>>, userId: string): Promise<UpdateResult<CommentMongoDb>> => {
   const collection = await getCollection();
+  const { _id, ...commentWithoutId } = comment;
+  console.log(userId);
   const data = await collection.updateOne(
-    { _id: new ObjectId(comment._id) },
+    { _id: new ObjectId(_id), userId: new ObjectId(userId) },
     {
       $set: {
-        ...comment,
-        userId: new ObjectId(comment.userId),
+        ...commentWithoutId,
         updatedAt: new Date(),
       },
     }
@@ -76,7 +77,7 @@ export const updateComment = async (comment: Partial<WithId<Comment>>): Promise<
   return data;
 };
 
-export const deleteComment = async (commentId: string): Promise<DeleteResult> => {
+export const deleteComment = async (commentId: string, userId: string): Promise<DeleteResult> => {
   const collection = await getCollection();
-  return await collection.deleteOne({ _id: new ObjectId(commentId) });
+  return await collection.deleteOne({ _id: new ObjectId(commentId), userId: new ObjectId(userId) });
 };

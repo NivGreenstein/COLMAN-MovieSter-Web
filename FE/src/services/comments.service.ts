@@ -53,4 +53,40 @@ const createComment = async (comment: CommentBase): Promise<{ _id: string } | nu
   }
 };
 
-export { getCommentsByMovieId, getCommentsByUserId, createComment };
+const patchComment = async (comment: Partial<Comment>): Promise<Response | null> => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(comment),
+    });
+    if (response.ok) {
+      return response;
+    }
+    return null;
+  } catch (error) {
+    console.error('Patching comment failed', error);
+    return null;
+  }
+};
+
+const deleteComment = async (id: string): Promise<Response | null> => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if (response.ok) {
+      return response;
+    }
+    return null;
+  } catch (error) {
+    console.error('Deleting comment failed', error);
+    return null;
+  }
+};
+
+export { getCommentsByMovieId, getCommentsByUserId, createComment, patchComment, deleteComment };

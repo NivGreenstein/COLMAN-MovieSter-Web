@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Rate, Input, Form } from 'antd';
+import { Modal, Rate, Input, Form, Button } from 'antd';
 
 interface AddCommentDialogProps {
   isEditMode: boolean;

@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { RequestHandler } from 'express';
-import { Comment, CommentMongoDb, CommentSchema } from '../models/comment.model';
-import * as service from '../services/comment.service';
 import { ZodError } from 'zod';
 import httpCode from 'http-status-codes';
-import { ErrorResponse } from '../Globals';
 import { ObjectId, WithId } from 'mongodb';
+import { Comment, CommentMongoDb, CommentSchema } from '../models/comment.model';
+import * as service from '../services/comment.service';
+import { ErrorResponse } from '../Globals';
 
 export type PartialCommentUpdate = WithId<Partial<CommentMongoDb>>;
 export type CommentUpdate = RequestHandler<PartialCommentUpdate, undefined | ErrorResponse>;
@@ -16,12 +17,15 @@ export type CommentGetByUserId = RequestHandler<{ userId: string }, WithId<Comme
 
 export const updateComment: CommentUpdate = async (req, res) => {
   try {
+    //@ts-ignore
+    const userId: string = req.userId;
     const comment: PartialCommentUpdate = req.body;
 
     const { _id: _, ...commentToParse } = comment;
     CommentSchema.partial().parse(commentToParse);
 
-    const result = await service.updateComment(comment);
+    const result = await service.updateComment(comment, userId);
+    console.log(result);
     if (result.matchedCount === 0) {
       return res.status(httpCode.NOT_FOUND).json({ message: 'Comment not found' });
     }
@@ -101,7 +105,9 @@ export const createComment: CommentCreate = async (req, res) => {
 export const deleteComment: CommentDelete = async (req, res) => {
   try {
     const id = req.params.id;
-    const result = await service.deleteComment(id);
+    //@ts-ignore
+    const userId = req.userId as string;
+    const result = await service.deleteComment(id, userId);
     return res.status(httpCode.NO_CONTENT).send();
   } catch (err: unknown) {
     if (err instanceof Error) {
