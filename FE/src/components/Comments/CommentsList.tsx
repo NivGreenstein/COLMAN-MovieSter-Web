@@ -1,8 +1,8 @@
 import React from 'react';
-import { Tooltip, List, Rate } from 'antd';
-import { IUserComment, IMovieComment } from '../../types/IComment';
+import { Tooltip, List, Rate, Avatar } from 'antd';
 import { Comment as AntComment } from '@ant-design/compatible';
 import moment from 'moment';
+import { Comment } from '../../types/IComment';
 
 interface CommentListProps {
   comments: Comment[];
@@ -15,19 +15,26 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage }) => {
       className="comment-list"
       itemLayout="horizontal"
       dataSource={comments}
-      renderItem={(comment: IUserComment | IMovieComment) => (
+      renderItem={(comment: Comment) => (
         <li>
           <AntComment
-            author={isMoviePage ? (comment as IMovieComment).username : (comment as IUserComment).movieTitle}
+            author={isMoviePage ? comment.user?.username : comment.movie?.title}
+            avatar={
+              <Avatar
+                shape={isMoviePage ? 'circle' : 'square'}
+                src={isMoviePage ? comment.user?.profilePictureUrl : comment.movie?.posterUrl}
+                alt={isMoviePage ? comment.user?.username : comment.movie?.title}
+              />
+            }
             content={
               <>
-                <Rate disabled defaultValue={comment.rating} />
-                <p>{comment.text}</p>
+                <Rate disabled value={comment.rating} />
+                <p>{comment.description}</p>
               </>
             }
             datetime={
               <Tooltip title={moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
-                <span>{moment(comment.date).fromNow()}</span>
+                <span>{moment(comment.createdAt).fromNow()}</span>
               </Tooltip>
             }
           />
