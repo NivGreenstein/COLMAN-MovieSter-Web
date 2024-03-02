@@ -101,3 +101,14 @@ export const createUser: UserCreate = async (req, res) => {
     return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
   }
 };
+
+export const getCurrentUser: RequestHandler<undefined, WithId<UserMongoDB> | ErrorResponse> = async (req, res) => {
+  const accessToken = req.cookies['access-token'] as string;
+
+  const userTokenData = JSON.parse(atob(accessToken.split('.')[1])) as WithId<UserMongoDB>;
+  const user = await service.getUserById(userTokenData._id.toString());
+  if (!user) {
+    return res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
+  }
+  return res.json(user);
+};

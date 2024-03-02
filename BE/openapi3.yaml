@@ -451,6 +451,33 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         5XX:
           $ref: "#/components/responses/UnexpectedError"
+  /users/me:
+    get:
+      summary: get current user logged to the session
+      operationId: getCurrentUser
+      tags:
+        - authenticated routes
+        - users
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: user data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
   /logout:
     post:
       summary: logout user
