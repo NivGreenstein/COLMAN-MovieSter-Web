@@ -665,7 +665,723 @@ components:
       properties:
         _id:
           type: string
+          pattern: "^[0-9a-fA-F]{24}$"openapi: 3.0.1
+info:
+  title: MovieSter API
+  description: Api to access MovieSter application
+  license:
+    name: MIT
+  version: 3.5.0
+tags:
+  - name: unauthenticated routes
+  - name: authenticated routes
+  - name: users
+  - name: movies
+  - name: comments
+paths:
+  /register:
+    post:
+      tags:
+        - unauthenticated routes
+        - users
+      summary: Register new user
+      requestBody:
+        description: send new user sata
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UserForRegister"
+        required: true
+      operationId: register
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /login:
+    post:
+      tags:
+        - unauthenticated routes
+      summary: login a user
+      requestBody:
+        description: send credentials
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/LoginSchema"
+        required: true
+      operationId: login
+      responses:
+        "200":
+          description: logged in
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: access-token=[headers].[payload].[secret]; Max-Age=900; Path=/; Expires=Tue, 27 Feb 2024 14:58:24 GMT; HttpOnly; Secure; SameSite=None
+
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /token:
+    get:
+      summary: creates new access token
+      operationId: CreateNewAccessToken
+      parameters:
+        - in: cookie
+          name: refresh-token
+          required: true
+          schema:
+            type: string
+          description: JWT Refresh token
+      responses:
+        "200":
+          description: New token created
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: access-token=[headers].[payload].[secret]; Max-Age=900; Path=/; Expires=Tue, 27 Feb 2024 14:58:24 GMT; HttpOnly; Secure; SameSite=None
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /movies/now-playing:
+    get:
+      summary: get in theater movies
+      operationId: getNowPlayingMovies
+      tags:
+        - authenticated routes
+        - movies
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: Now Playing Movie Array
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieArray"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /movies/search/{movieName}:
+    get:
+      summary: get movie data by name
+      operationId: getMovieByName
+      tags:
+        - authenticated routes
+        - movies
+      parameters:
+        - in: path
+          name: movieName
+          schema:
+            type: string
+          required: true
+          description: movie's name
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: movie data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /movies/{movieId}:
+    get:
+      summary: get movie data by id
+      operationId: getMovieById
+      tags:
+        - authenticated routes
+        - movies
+      parameters:
+        - in: path
+          name: movieId
+          schema:
+            type: number
+          required: true
+          description: movie's id
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: movie data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /comments:
+    post:
+      summary: Create new comment
+      operationId: createComment
+      tags:
+        - authenticated routes
+        - comments
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      requestBody:
+        description: send new comment data
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CommentCreate"
+        required: true
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    pattern: "^[0-9a-fA-F]{24}$"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      summary: Update comment
+      operationId: updateComment
+      tags:
+        - authenticated routes
+        - comments
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      requestBody:
+        description: send new comment data
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/CommentUpdate"
+        required: true
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /comments/{commentId}:
+    get:
+      summary: get comment data by id
+      operationId: getCommentById
+      tags:
+        - authenticated routes
+        - comments
+      parameters:
+        - in: path
+          name: commentId
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+          required: true
+          description: comment's id
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: comment data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      summary: delete comment data by id
+      operationId: deleteCommentById
+      tags:
+        - authenticated routes
+        - comments
+      parameters:
+        - in: path
+          name: commentId
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+          required: true
+          description: comment's id
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /comments/user/{userId}:
+    get:
+      summary: get comments by user id
+      operationId: getCommentsByUserId
+      tags:
+        - authenticated routes
+        - comments
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+          required: true
+          description: user's id
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: comment array
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentArray"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /comments/movie/{movieId}:
+    get:
+      summary: get comments by movie id
+      operationId: getCommentsByMovieId
+      tags:
+        - authenticated routes
+        - comments
+      parameters:
+        - in: path
+          name: movieId
+          schema:
+            type: number
+          required: true
+          description: movie's id
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: comment array
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentArray"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /users:
+    patch:
+      summary: update user's data
+      operationId: patchUser
+      tags:
+        - authenticated routes
+        - users
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      requestBody:
+        description: send user's data to update
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UserForUpdate"
+        required: true
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /users/{userId}:
+    get:
+      summary: get user by id
+      operationId: getUserById
+      tags:
+        - authenticated routes
+        - users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+          required: true
+          description: user's id
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: user data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /users/me:
+    get:
+      summary: get current user logged to the session
+      operationId: getCurrentUser
+      tags:
+        - authenticated routes
+        - users
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: user data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /logout:
+    post:
+      summary: logout user
+      operationId: logout
+      tags:
+       - default
+       - users
+      parameters:
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: user logged out successfuly and cookies deleted and revoked
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NoContent:
+      description: No content
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    UnexpectedError:
+      description: Unexpected Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
           pattern: "^[0-9a-fA-F]{24}$"
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        profilePicture:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+          description: "Optional creation date"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Optional update date"
+      required:
+        - username
+        - email
+        - profilePicture
+    UserForRegister:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+          format: email
+        profilePictureUrl:
+          type: string
+          format: url
+      required:
+        - username
+        - password
+        - email
+        - profilePicture
+    UserForUpdate:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        profilePicture:
+          type: string
+          format: uri
+      required:
+        - _id
+    LoginSchema:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - username
+        - password
+    Movie:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        description:
+          type: string
+        posterUrl:
+          type: string
+          format: uri
+        rating:
+          type: number
+      required:
+        - username
+        - email
+        - profilePicture
+    MovieArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/Movie"
+    Comment:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        movieId:
+          type: integer
+        userId:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        mainCommentId:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        description:
+          type: string
+          format: uri
+        rating:
+          type: integer
+          minimum: 0
+          maximum: 10
+        createdAt:
+          type: string
+          format: date-time
+          description: "Optional creation date"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Optional update date"
+      required:
+        - movieId
+        - userId
+        - description
+        - rating
+    CommentCreate:
+      type: object
+      properties:
+        movieId:
+          type: integer
+        userId:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        mainCommentId:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        description:
+          type: string
+          format: uri
+        rating:
+          type: integer
+          minimum: 0
+          maximum: 10
+      required:
+        - movieId
+        - userId
+        - description
+        - rating
+    CommentUpdate:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        movieId:
+          type: integer
+        userId:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        mainCommentId:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+        description:
+          type: string
+          format: uri
+        rating:
+          type: integer
+          minimum: 0
+          maximum: 10
+      required:
+        - _id
+    CommentArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/Comment"
+
         movieId:
           type: integer
         userId:
