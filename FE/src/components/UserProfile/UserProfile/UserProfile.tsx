@@ -43,8 +43,8 @@ const UserProfile: React.FC<UserProfileProps> = () => {
   return (
     <Layout>
       <Content style={{ background: 'white', padding: '30px 30px 30px 30px', minHeight: '100vh', minWidth: '100vw' }}>
-        <Row justify="space-between" align="top" style={{ padding: '1vh' }}>
-          <Col>
+        <Row gutter={16} justify="space-between" align="top" style={{ padding: '1vh' }}>
+          <Col span={12}>
             <Button
               onClick={handleEditProfileClick}
               style={{ marginRight: '110vh', marginBottom: '100px' }}
@@ -56,7 +56,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
             </Button>
             <CommentList comments={comments} isMoviePage={false} />
           </Col>
-          <Col style={{ alignItems: 'center' }}>
+          <Col span={4} style={{ alignItems: 'center' }}>
             <Avatar size={120} shape="circle" src={user?.profilePictureUrl} />
             <Row justify="center" style={{ padding: '50px 0px 24px' }}>
               <Col>
