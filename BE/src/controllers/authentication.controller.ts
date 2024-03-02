@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { RequestHandler } from 'express';
-import { createUser } from './user.controller';
-import * as authService from '../services/auth.service';
-import { ErrorResponse } from '../Globals';
 import httpCode from 'http-status-codes';
+import { z } from 'zod';
 import { generateAccessToken as generateAccessTokenUtil, verifyRefreshTokenWithSecret } from '../utils/jwt.util';
 import { User } from '../models/user.model';
-import { z } from 'zod';
+import * as authService from '../services/auth.service';
+import { ErrorResponse } from '../Globals';
+import { createUser } from './user.controller';
+import { getUserById } from '../services/user.service';
 
 export type UserLogin = RequestHandler<{ email: string; password: string }, undefined | ErrorResponse>;
 export type UserLogout = RequestHandler<undefined, undefined | ErrorResponse>;
@@ -67,7 +69,6 @@ export const logout: UserLogout = async (req, res) => {
 
 export const generateAccessToken: UserGenereateAccessToken = async (req, res) => {
   const refreshToken = req.cookies['refresh-token'];
-  console.log(refreshToken);
   if (!refreshToken) {
     return res.status(httpCode.UNAUTHORIZED).json({ message: 'Unauthorized' });
   }
@@ -77,7 +78,11 @@ export const generateAccessToken: UserGenereateAccessToken = async (req, res) =>
     return res.status(httpCode.UNAUTHORIZED).json({ message: 'Unauthorized' });
   }
 
-  const accessToken = generateAccessTokenUtil(payload.user as User);
+  const user = await getUserById(payload._id);
+  if (!user) {
+    return res.status(httpCode.UNAUTHORIZED).json({ message: 'Unauthorized' });
+  }
+  const accessToken = generateAccessTokenUtil(user as User);
 
   res.cookie('access-token', accessToken, {
     maxAge: 1000 * 60 * 15,
