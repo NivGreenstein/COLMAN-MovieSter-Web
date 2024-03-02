@@ -43,7 +43,7 @@ const UserProfile: React.FC = () => {
 
     return (
         <Layout>
-            <Content style={{ background: 'white', margin: 0, minHeight: '80vh' }}>
+            <Content style={{ background: 'white', padding: '30px 30px 30px 30px', minHeight: '100vh', minWidth: '100vw' }}>
                 <Row justify="space-between" align="top" style={{ padding: '1vh' }}>
                     <Col>
                         <Button onClick={handleEditProfileClick}  style={{ marginRight: '110vh', marginBottom: '100px' }} type="primary" shape="round" icon={<EditOutlined />}>

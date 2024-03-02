@@ -12,35 +12,34 @@ const { Search } = Input;
 const MovieListPage: React.FC = () => {
   const navigate = useNavigate();
   const [movies, setMovies] = useState<IMovie[]>([]);
-  const [searchMovieValue, setSearchMovieValue] = useState<string>('');
+  // const [searchMovieValue, setSearchMovieValue] = useState<string>('');
 
   useEffect(() => {
     const fetchMovies = async () => {
-      if (!searchMovieValue) {
+      if (true) {
         const data = await getNowPlayingMovies();
         setMovies(data);
         return;
       }
 
-      const data = await searchMovies(searchMovieValue);
-      setMovies(data);
+      // const data = await searchMovies(searchMovieValue);
+      // setMovies(data);
     };
     fetchMovies();
-  }, [searchMovieValue]);
+  }, []);
 
-  const handleSearch = (value: string) => {
-    setSearchMovieValue(value);
-  };
+  // const handleSearch = (value: string) => {
+  //   setSearchMovieValue(value);
+  // };
 
-  const goToProfile = () => {
-    navigate('/profile');
-  };
+  // const goToProfile = () => {
+  //   navigate('/profile');
+  // };
 
-  const handleLogout = () => {};
+  // const handleLogout = () => {};
 
   return (
     <Layout style={{ minHeight: '100vh', minWidth: '100vw' }}>
-      <AppHeader handleLogout={handleLogout} handleSearch={handleSearch} goToProfile={goToProfile}></AppHeader>
       <Content style={{ padding: '50px' }}>
         <Row gutter={[16, 16]}>
           {movies.map((movie) => (
