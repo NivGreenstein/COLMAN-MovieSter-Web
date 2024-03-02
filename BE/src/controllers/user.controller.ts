@@ -106,7 +106,11 @@ export const getCurrentUser: RequestHandler<undefined, WithId<UserMongoDB> | Err
   const accessToken = req.cookies['access-token'] as string;
 
   const userTokenData = JSON.parse(atob(accessToken.split('.')[1])) as WithId<UserMongoDB>;
-  const user = await service.getUserById(userTokenData._id.toString());
+  const id = userTokenData?._id?.toString();
+  if (!id) {
+    return res.status(httpCode.BAD_REQUEST).json({ message: 'Invalid token' });
+  }
+  const user = await service.getUserById(id);
   if (!user) {
     return res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
   }
