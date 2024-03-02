@@ -3,16 +3,19 @@ import {Layout, Input, Avatar, Button} from 'antd';
 import {UserOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {logout} from '../../services/auth.service';
+import {useSession} from "../../context/SessionContext";
 
 const {Header} = Layout;
 const {Search} = Input;
 
 const AppHeader: React.FC<{ profileImageUrl?: string }> = ({profileImageUrl}) => {
   const navigate = useNavigate();
+    const {setIsLoggedIn} = useSession();
 
     const handleLogout = async () => {
         try {
             await logout();
+            setIsLoggedIn(false);
             navigate('/login');
         } catch (error) {
             console.error("Logout failed", error);
@@ -24,7 +27,6 @@ const AppHeader: React.FC<{ profileImageUrl?: string }> = ({profileImageUrl}) =>
         console.log(value);
     };
 
-    // Placeholder for navigating to the user profile
     const goToProfile = () => {
         navigate('/profile');
     };
