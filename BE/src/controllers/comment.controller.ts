@@ -9,7 +9,7 @@ import { ErrorResponse } from '../Globals';
 
 export type PartialCommentUpdate = WithId<Partial<CommentMongoDb>>;
 export type CommentUpdate = RequestHandler<PartialCommentUpdate, undefined | ErrorResponse>;
-export type CommentCreate = RequestHandler<Comment, { _id: string | ObjectId } | ErrorResponse>;
+export type CommentCreate = RequestHandler<{}, { _id: string | ObjectId } | ErrorResponse, Comment>
 export type CommentDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
 export type CommentGetById = RequestHandler<{ id: string }, WithId<CommentMongoDb> | ErrorResponse>;
 export type CommentGetByMovieId = RequestHandler<{ movieId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
@@ -85,6 +85,11 @@ export const getCommentsByUserId: CommentGetByUserId = async (req, res) => {
 export const createComment: CommentCreate = async (req, res) => {
   try {
     const comment = req.body as Comment;
+    const image = req.file;
+
+    if (image) {
+      comment.imagePath = image.path;
+    }
     //@ts-ignore
     if (comment.userId !== req.userId) {
       return res.status(httpCode.FORBIDDEN).json({ message: 'User cannot preform actions on behalf of someone else.' });
@@ -93,7 +98,7 @@ export const createComment: CommentCreate = async (req, res) => {
     CommentSchema.parse(comment);
 
     const result = await service.createComment(comment);
-    return res.json({ _id: result });
+    return res.json({ _id: result, imagePath: comment.imagePath });
   } catch (err: unknown) {
     if (err instanceof ZodError) {
       return res.status(httpCode.BAD_REQUEST).json({ message: err.issues });

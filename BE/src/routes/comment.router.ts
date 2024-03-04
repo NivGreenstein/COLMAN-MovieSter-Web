@@ -7,9 +7,11 @@ import {
   getCommentsByMovieId,
   getCommentsByUserId,
 } from '../controllers/comment.controller';
+import {upload} from "../middlewares/imageUploader.middleware";
+
 const router = Router();
 
-router.post('/', createComment);
+router.post('/', upload.single('image'), createComment);
 router.patch('/', updateComment);
 router.get('/:id', getCommentById);
 router.delete('/:id', deleteComment);
