@@ -64,7 +64,7 @@ export const getCommentsByUserId = async (userId: string): Promise<WithId<Commen
 export const updateComment = async (comment: Partial<WithId<Comment>>, userId: string): Promise<UpdateResult<CommentMongoDb>> => {
   const collection = await getCollection();
   const { _id, ...commentWithoutId } = comment;
-  console.log(userId);
+
   const data = await collection.updateOne(
     { _id: new ObjectId(_id), userId: new ObjectId(userId) },
     {
