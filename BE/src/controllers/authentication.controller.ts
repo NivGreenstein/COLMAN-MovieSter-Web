@@ -1,16 +1,21 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable*/
 import { RequestHandler } from 'express';
 import httpCode from 'http-status-codes';
 import { z } from 'zod';
+import { OAuth2Client } from 'google-auth-library';
+import { config } from 'dotenv';
 import { generateAccessToken as generateAccessTokenUtil, verifyRefreshTokenWithSecret } from '../utils/jwt.util';
 import { User } from '../models/user.model';
 import * as authService from '../services/auth.service';
 import { ErrorResponse } from '../Globals';
-import { createUser } from './user.controller';
 import { getUserById } from '../services/user.service';
+import { createUser } from './user.controller';
+
+config();
 
 export type UserLogin = RequestHandler<{ email: string; password: string }, undefined | ErrorResponse>;
 export type UserLogout = RequestHandler<undefined, undefined | ErrorResponse>;
+export type UserGoogleLogin = RequestHandler<{ code: string }, any | ErrorResponse>;
 export type UserGenereateAccessToken = RequestHandler<undefined, undefined | ErrorResponse>;
 
 export const register = createUser;
@@ -48,6 +53,55 @@ export const login: UserLogin = async (req, res) => {
     if (err instanceof z.ZodError) {
       return res.status(400).json(err);
     }
+    if (err instanceof Error) {
+      return res.status(400).json({ message: err.message });
+    }
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const googleLogin: UserGoogleLogin = async (req, res) => {
+  try {
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      throw new Error('GOOGLE_CLIENT_ID is not defined');
+    }
+
+    const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, 'postmessage');
+    const { tokens } = await googleClient.getToken(req.body.code);
+
+    if (!tokens.id_token) {
+      throw new Error('No id_token in response');
+    }
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email || !payload.name || !payload.picture) {
+      throw new Error('No payload in response or missing fields in payload');
+    }
+    const result = await authService.googleLogin(payload.email, payload.name, payload.picture);
+
+    if (!result) {
+      return res.status(httpCode.UNAUTHORIZED).json({ message: 'Invalid token or data' });
+    }
+
+    res.cookie('access-token', result.accessToken, {
+      maxAge: 1000 * 60 * 15,
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    res.cookie('refresh-token', result.refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+
+    return res.status(httpCode.OK).send();
+  } catch (err: unknown) {
     if (err instanceof Error) {
       return res.status(400).json({ message: err.message });
     }
