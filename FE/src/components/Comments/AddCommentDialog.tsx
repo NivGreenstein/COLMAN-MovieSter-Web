@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Rate, Input, Form, Button } from 'antd';
+import { Modal, Rate, Input, Form } from 'antd';
 
 interface AddCommentDialogProps {
   isEditMode: boolean;
@@ -35,23 +35,21 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
   };
 
   return (
-    <>
-      <Modal
-        title={isEditMode ? 'Edit Comment' : 'Create Comment'}
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <Form>
-          <Form.Item label="Rating">
-            <Rate value={rating} onChange={setRating} />
-          </Form.Item>
-          <Form.Item label="Description">
-            <Input.TextArea value={description} onChange={(e) => setDescription(e.target.value)} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
+    <Modal
+      title={isEditMode ? 'Edit Comment' : 'Create Comment'}
+      open={isModalVisible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+    >
+      <Form>
+        <Form.Item label="Rating">
+          <Rate value={rating} onChange={setRating} />
+        </Form.Item>
+        <Form.Item label="Description">
+          <Input.TextArea value={description} onChange={(e) => setDescription(e.target.value)} />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 
