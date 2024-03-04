@@ -11,6 +11,12 @@ const getCollection = async () => {
 
 export const createComment = async (comment: Comment): Promise<string | ObjectId> => {
   const collection = await getCollection();
+
+  const searchForComment = await collection.findOne({ userId: comment.userId, movieId: comment.movieId });
+  if (searchForComment) {
+    throw new Error('You have already commented on this movie');
+  }
+
   const result = await collection.insertOne({
     ...comment,
     userId: new ObjectId(comment.userId),
