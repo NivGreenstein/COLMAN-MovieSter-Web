@@ -32,26 +32,36 @@ const getCommentsByUserId = async (userId: string): Promise<Comment[]> => {
   }
 };
 
-const createComment = async (comment: CommentBase): Promise<{ _id: string } | null> => {
+const createComment = async (commentData: CommentBase, image?: File): Promise<{ _id: string } | null> => {
+  const formData = new FormData();
+
+  formData.append('description', commentData.description);
+  formData.append('rating', String(commentData.rating));
+  formData.append('movieId', String(commentData.movieId));
+  formData.append('userId', commentData.userId);
+
+  if (image) {
+    formData.append('image', image, image.name);
+  }
+
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URI}/comments`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       credentials: 'include',
-      body: JSON.stringify(comment),
+      body: formData,
     });
+
     if (response.ok) {
-      const data: Comment = await response.json();
+      const data = await response.json();
       return data;
     }
     return null;
   } catch (error) {
-    console.error('Creating comment failed', error);
+    console.error('Creating comment with image failed', error);
     return null;
   }
 };
+
 
 const patchComment = async (comment: Partial<Comment>): Promise<Response | null> => {
   try {

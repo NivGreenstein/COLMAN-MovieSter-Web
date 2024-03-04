@@ -6,14 +6,16 @@ import { ObjectId, WithId } from 'mongodb';
 import { Comment, CommentMongoDb, CommentSchema } from '../models/comment.model';
 import * as service from '../services/comment.service';
 import { ErrorResponse } from '../Globals';
+import {CommentCreateResponse} from "../types/commentRequest.type";
 
 export type PartialCommentUpdate = WithId<Partial<CommentMongoDb>>;
 export type CommentUpdate = RequestHandler<PartialCommentUpdate, undefined | ErrorResponse>;
-export type CommentCreate = RequestHandler<{}, { _id: string | ObjectId } | ErrorResponse, Comment>
+export type CommentCreate = RequestHandler<{}, CommentCreateResponse>
 export type CommentDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;
 export type CommentGetById = RequestHandler<{ id: string }, WithId<CommentMongoDb> | ErrorResponse>;
 export type CommentGetByMovieId = RequestHandler<{ movieId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
 export type CommentGetByUserId = RequestHandler<{ userId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
+
 
 export const updateComment: CommentUpdate = async (req, res) => {
   try {
@@ -94,6 +96,9 @@ export const createComment: CommentCreate = async (req, res) => {
     if (comment.userId !== req.userId) {
       return res.status(httpCode.FORBIDDEN).json({ message: 'User cannot preform actions on behalf of someone else.' });
     }
+
+    comment.movieId = parseInt(String(comment.movieId), 10)
+    comment.rating = parseInt(String(comment.rating), 10)
 
     CommentSchema.parse(comment);
 

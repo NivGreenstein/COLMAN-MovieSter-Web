@@ -20,6 +20,7 @@ const MovieInfoPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [rating, setRating] = useState(0);
   const { loggedUser } = useSession();
+  const [image, setImage] = useState(null);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -52,6 +53,8 @@ const MovieInfoPage: React.FC = () => {
     if (!movie || !loggedUser) {
       throw new Error('Movie not found or User not logged in.');
     }
+
+
     if (userExistingComment) {
       const commentToUpdate = {
         _id: userExistingComment._id,
@@ -86,7 +89,7 @@ const MovieInfoPage: React.FC = () => {
     };
     CommentSchema.parse(commentToCreate);
 
-    const createdComment = await createComment(commentToCreate);
+    const createdComment = await createComment(commentToCreate, image);
 
     if (createdComment) {
       console.log('Comment created', createdComment);
@@ -139,6 +142,8 @@ const MovieInfoPage: React.FC = () => {
               setDescription={setDescription}
               isEditMode={!!userExistingComment}
               restartStates={restartAddCommentStates}
+              image={image}
+              setImage={setImage}
             />
             <CommentList comments={comments} isMoviePage={true} setComments={setComments} />
           </Col>
