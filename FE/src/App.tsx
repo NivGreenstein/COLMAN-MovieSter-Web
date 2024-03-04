@@ -10,9 +10,11 @@ import MoviesPage from "./components/MoviesPage/MoviesPage";
 import MovieInfoPage from "./components/MovieInfo/MovieInfPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LayoutWithHeader from "./components/header/LayoutWithHeader";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const App: React.FC = () => {
     return (
+        <GoogleOAuthProvider clientId="286438240561-re2j2jr85ba3m8jlv585fooa3kpun6u2.apps.googleusercontent.com">
         <Router>
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
@@ -25,6 +27,7 @@ const App: React.FC = () => {
                 <Route path="/movies" element={<LayoutWithHeader> <ProtectedRoute><MoviesPage /></ProtectedRoute> </LayoutWithHeader>} />
             </Routes>
         </Router>
+    </GoogleOAuthProvider>
     );
 };
 
