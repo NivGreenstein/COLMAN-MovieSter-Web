@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip, List, Rate, Avatar, Button } from 'antd';
+import { Tooltip, List, Rate, Avatar, Button, ConfigProvider, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { Comment } from '../../types/IComment';
@@ -25,12 +25,28 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, handle
             actions={
               comment.userId === loggedUser?._id
                 ? [
+                    <ConfigProvider
+                      theme={{
+                        token: {
+                          colorPrimary: '#FF8911',
+                        },
+                      }}
+                    >
                     <Button icon={<EditOutlined />} onClick={() => handleEditComment(comment._id)}>
                       Edit
-                    </Button>,
+                      </Button>
+                    </ConfigProvider>,
+                    <ConfigProvider
+                      theme={{
+                        token: {
+                          colorPrimary: '#FE0000',
+                        },
+                      }}
+                    >
                     <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
                       Delete
-                    </Button>,
+                      </Button>
+                    </ConfigProvider>,
                   ]
                 : []
             }
