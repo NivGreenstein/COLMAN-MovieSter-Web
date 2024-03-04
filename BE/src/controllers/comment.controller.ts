@@ -112,6 +112,9 @@ export const deleteComment: CommentDelete = async (req, res) => {
     //@ts-ignore
     const userId = req.userId as string;
     const result = await service.deleteComment(id, userId);
+    if (result.deletedCount === 0) {
+      return res.status(httpCode.NOT_FOUND).json({ message: 'Comment not found' });
+    }
     return res.status(httpCode.NO_CONTENT).send();
   } catch (err: unknown) {
     if (err instanceof Error) {
