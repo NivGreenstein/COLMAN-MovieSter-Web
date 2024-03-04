@@ -14,6 +14,7 @@ export type CommentDelete = RequestHandler<{ id: string }, undefined | ErrorResp
 export type CommentGetById = RequestHandler<{ id: string }, WithId<CommentMongoDb> | ErrorResponse>;
 export type CommentGetByMovieId = RequestHandler<{ movieId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
 export type CommentGetByUserId = RequestHandler<{ userId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
+export type CommentGetThread = RequestHandler<{ mainCommentId: string }, WithId<CommentMongoDb>[] | ErrorResponse>;
 
 export const updateComment: CommentUpdate = async (req, res) => {
   try {
@@ -73,6 +74,19 @@ export const getCommentsByUserId: CommentGetByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
     const result = await service.getCommentsByUserId(userId);
+    return res.json(result);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
+    }
+    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+  }
+};
+
+export const getCommentsThread: CommentGetThread = async (req, res) => {
+  try {
+    const mainCommentId = req.params.mainCommentId;
+    const result = await service.getCommentsThread(mainCommentId);
     return res.json(result);
   } catch (err: unknown) {
     if (err instanceof Error) {
