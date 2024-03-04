@@ -86,6 +86,10 @@ export const getCommentsByUserId: CommentGetByUserId = async (req, res) => {
 export const createComment: CommentCreate = async (req, res) => {
   try {
     const comment = req.body as Comment;
+    //@ts-ignore
+    if (comment.userId !== req.userId) {
+      return res.status(httpCode.FORBIDDEN).json({ message: 'User cannot preform actions on behalf of someone else.' });
+    }
 
     CommentSchema.parse(comment);
 
@@ -108,6 +112,9 @@ export const deleteComment: CommentDelete = async (req, res) => {
     //@ts-ignore
     const userId = req.userId as string;
     const result = await service.deleteComment(id, userId);
+    if (result.deletedCount === 0) {
+      return res.status(httpCode.NOT_FOUND).json({ message: 'Comment not found' });
+    }
     return res.status(httpCode.NO_CONTENT).send();
   } catch (err: unknown) {
     if (err instanceof Error) {

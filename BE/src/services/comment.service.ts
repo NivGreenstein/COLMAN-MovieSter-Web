@@ -11,6 +11,12 @@ const getCollection = async () => {
 
 export const createComment = async (comment: Comment): Promise<string | ObjectId> => {
   const collection = await getCollection();
+
+  const searchForComment = await collection.findOne({ userId: comment.userId, movieId: comment.movieId });
+  if (searchForComment) {
+    throw new Error('You have already commented on this movie');
+  }
+
   const result = await collection.insertOne({
     ...comment,
     userId: new ObjectId(comment.userId),
@@ -64,7 +70,7 @@ export const getCommentsByUserId = async (userId: string): Promise<WithId<Commen
 export const updateComment = async (comment: Partial<WithId<Comment>>, userId: string): Promise<UpdateResult<CommentMongoDb>> => {
   const collection = await getCollection();
   const { _id, ...commentWithoutId } = comment;
-  console.log(userId);
+
   const data = await collection.updateOne(
     { _id: new ObjectId(_id), userId: new ObjectId(userId) },
     {
