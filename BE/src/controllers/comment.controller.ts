@@ -25,7 +25,6 @@ export const updateComment: CommentUpdate = async (req, res) => {
     CommentSchema.partial().parse(commentToParse);
 
     const result = await service.updateComment(comment, userId);
-    console.log(result);
     if (result.matchedCount === 0) {
       return res.status(httpCode.NOT_FOUND).json({ message: 'Comment not found' });
     }
