@@ -32,8 +32,8 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, handle
                         },
                       }}
                     >
-                    <Button icon={<EditOutlined />} onClick={() => handleEditComment(comment._id)}>
-                      Edit
+                      <Button icon={<EditOutlined />} onClick={() => handleEditComment(comment._id)}>
+                        Edit
                       </Button>
                     </ConfigProvider>,
                     <ConfigProvider
@@ -43,8 +43,8 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, handle
                         },
                       }}
                     >
-                    <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
-                      Delete
+                      <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
+                        Delete
                       </Button>
                     </ConfigProvider>,
                   ]
@@ -63,7 +63,9 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, handle
               description={
                 <>
                   <Rate disabled value={comment.rating} />
-                  <p>{comment.description}</p>
+                  <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+                    {comment.description}
+                  </Typography.Paragraph>
                 </>
               }
             />
