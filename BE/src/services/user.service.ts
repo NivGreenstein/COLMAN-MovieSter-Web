@@ -1,4 +1,4 @@
-import { ObjectId, WithId } from 'mongodb';
+import { InsertOneResult, ObjectId, WithId } from 'mongodb';
 import bcrypt from 'bcrypt';
 import { getDb } from '../DB/monogDb';
 import { UserMongoDB, UserRegister } from '../models/user.model';
@@ -76,6 +76,34 @@ export const login = async (email: string, password: string) => {
   const refreshToken: string = await generateRefreshToken({ ...userWithoutPassword });
 
   return { accessToken, refreshToken };
+};
+
+export const googleLogin = async (email: string, name: string, profilePictureUrl: string) => {
+  const collection = await getCollection();
+
+  let user: WithId<UserMongoDB> | null = await collection.findOne({ email });
+
+  if (!user) {
+    const insertion = await collection.insertOne({
+      email,
+      username: name,
+      profilePictureUrl,
+      isGoogleUser: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    if (insertion.acknowledged) {
+      user = await collection.findOne({ email });
+    }
+    if (!user) {
+      throw new Error('Could not create user');
+    }
+
+    const accessToken: string = generateAccessToken(user);
+    const refreshToken: string = await generateRefreshToken(user);
+
+    return { accessToken, refreshToken };
+  }
 };
 
 export const deleteUser = async (id: string) => {
