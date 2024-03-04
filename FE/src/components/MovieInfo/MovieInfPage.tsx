@@ -96,22 +96,16 @@ const MovieInfoPage: React.FC = () => {
     }
   };
 
-  const handleOnDeleteComment = async () => {
-    if (!userExistingComment) {
-      throw new Error('Comment not found');
-    }
-    const commentToDelete = userExistingComment._id;
-    const response = await deleteComment(commentToDelete);
+  const handleOnDeleteComment = async (commentId: string) => {
+    const response = await deleteComment(commentId);
     if (response?.ok) {
       console.log('Comment deleted', response);
-      const updatedComments = comments.filter((comment) => comment._id !== userExistingComment._id);
+      const updatedComments = comments.filter((comment) => comment._id !== commentId);
       setComments(updatedComments);
-      setIsModalVisible(false);
-      restartAddCommentStates();
     }
   };
 
-  const handleEditComment = () => {
+  const handleEditButtonClick = () => {
     setIsModalVisible(true);
   };
 
@@ -163,7 +157,7 @@ const MovieInfoPage: React.FC = () => {
               comments={comments}
               isMoviePage={true}
               handleDeleteComment={handleOnDeleteComment}
-              handleEditComment={handleEditComment}
+              handleEditComment={handleEditButtonClick}
             />
           </Col>
         </Row>
