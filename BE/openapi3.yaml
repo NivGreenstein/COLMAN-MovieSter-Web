@@ -69,6 +69,34 @@ paths:
           $ref: "#/components/responses/BadRequest"
         5XX:
           $ref: "#/components/responses/UnexpectedError"
+  /login/google:
+    post:
+      tags:
+        - unauthenticated routes
+      summary: login a user using google oauth
+      requestBody:
+        description: send credentials
+        content:
+          application/json:
+            schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+        required: true
+      operationId: loginGoogle
+      responses:
+        "200":
+          description: logged in
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: access-token=[headers].[payload].[secret]; Max-Age=900; Path=/; Expires=Tue, 27 Feb 2024 14:58:24 GMT; HttpOnly; Secure; SameSite=None
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
   /token:
     get:
       summary: creates new access token
