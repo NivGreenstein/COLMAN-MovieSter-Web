@@ -26,6 +26,12 @@ export const updateUser: UserUpdate = async (req, res): Promise<void> => {
       .partial()
       .parse(user);
 
+    //@ts-ignore
+    if (user._id !== req.userId) {
+      res.status(httpCode.FORBIDDEN).json({ message: 'Forbidden' });
+      return;
+    }
+
     const result = await service.updateUser(user);
 
     if (result.matchedCount === 0) {
