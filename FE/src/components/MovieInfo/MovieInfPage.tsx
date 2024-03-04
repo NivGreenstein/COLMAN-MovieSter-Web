@@ -5,7 +5,7 @@ import { Comment, CommentBase, CommentFullSchema, CommentSchema } from '../../ty
 import { IMovie } from '../../types/IMovie';
 import { useParams } from 'react-router-dom';
 import { fetchMovieById } from '../../services/movies.service';
-import { createComment, getCommentsByMovieId, patchComment, deleteComment } from '../../services/comments.service';
+import { createComment, getCommentsByMovieId, patchComment } from '../../services/comments.service';
 import AddCommentDialog from '../Comments/AddCommentDialog';
 import { useSession } from '../../context/SessionContext';
 
@@ -96,19 +96,6 @@ const MovieInfoPage: React.FC = () => {
     }
   };
 
-  const handleOnDeleteComment = async (commentId: string) => {
-    const response = await deleteComment(commentId);
-    if (response?.ok) {
-      console.log('Comment deleted', response);
-      const updatedComments = comments.filter((comment) => comment._id !== commentId);
-      setComments(updatedComments);
-    }
-  };
-
-  const handleEditButtonClick = () => {
-    setIsModalVisible(true);
-  };
-
   if (!movie) {
     return <div style={{ width: '100%', height: 'auto', maxHeight: '100vh', maxWidth: '100vw' }}>Loading...</div>;
   }
@@ -153,12 +140,7 @@ const MovieInfoPage: React.FC = () => {
               isEditMode={!!userExistingComment}
               restartStates={restartAddCommentStates}
             />
-            <CommentList
-              comments={comments}
-              isMoviePage={true}
-              handleDeleteComment={handleOnDeleteComment}
-              handleEditComment={handleEditButtonClick}
-            />
+            <CommentList comments={comments} isMoviePage={true} setComments={setComments} />
           </Col>
         </Row>
       </Content>
