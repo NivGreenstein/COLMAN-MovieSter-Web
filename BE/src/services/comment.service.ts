@@ -20,6 +20,7 @@ export const createComment = async (comment: Comment): Promise<string | ObjectId
   const result = await collection.insertOne({
     ...comment,
     userId: new ObjectId(comment.userId),
+    mainCommentId: comment.mainCommentId ? new ObjectId(comment.mainCommentId) : undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -36,7 +37,7 @@ export const getCommentsByMovieId = async (movieId: number): Promise<WithId<Comm
   const collection = await getCollection();
   const comments = await collection
     .aggregate([
-      { $match: { movieId } },
+      { $match: { movieId, mainCommentId: undefined } },
       {
         $lookup: {
           from: 'users',
@@ -56,7 +57,7 @@ export const getCommentsByMovieId = async (movieId: number): Promise<WithId<Comm
 
 export const getCommentsByUserId = async (userId: string): Promise<WithId<CommentMongoDb & { movie: Movie | undefined }>[]> => {
   const collection = await getCollection();
-  const comments = await collection.find({ userId: new ObjectId(userId) }).toArray();
+  const comments = await collection.find({ userId: new ObjectId(userId), mainCommentId: undefined }).toArray();
   // eslint-disable-next-line @typescript-eslint/await-thenable
   const commentsWithMovies = await Promise.all(
     comments.map(async (comment) => {
@@ -65,6 +66,28 @@ export const getCommentsByUserId = async (userId: string): Promise<WithId<Commen
     })
   );
   return commentsWithMovies;
+};
+
+export const getCommentsThread = async (mainCommentId: string): Promise<WithId<CommentMongoDb>[]> => {
+  const collection = await getCollection();
+  const comments = await collection
+    .aggregate([
+      { $match: { mainCommentId: new ObjectId(mainCommentId) } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      { $project: { 'user.password': 0 } },
+      { $sort: { createdAt: -1 } },
+    ])
+    .toArray();
+  return comments as WithId<CommentMongoDb>[];
 };
 
 export const updateComment = async (comment: Partial<WithId<Comment>>, userId: string): Promise<UpdateResult<CommentMongoDb>> => {

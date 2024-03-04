@@ -6,15 +6,19 @@ import { Comment, CommentFullSchema } from '../../types/IComment';
 import { useSession } from '../../context/SessionContext';
 import { deleteComment, patchComment } from '../../services/comments.service';
 import AddCommentDialog from './AddCommentDialog';
+import { CommentThreadModal } from './CommentThreadModal';
 
 interface CommentListProps {
   comments: Comment[];
   setComments: (comments: Comment[]) => void;
   isMoviePage: boolean;
+  isCommentThread?: boolean;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setComments }) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setComments, isCommentThread = false }) => {
+  const [isAddCommentModalVisible, setIsAddCommentModalVisible] = useState(false);
+  const [activeThreadCommentId, setActiveThreadCommentId] = useState<string | null>(null);
+
   const [commentIdToEdit, setCommentIdToEdit] = useState('');
   const [description, setDescription] = useState('');
   const [rating, setRating] = useState(0);
@@ -35,7 +39,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setCom
     if (!comment) throw new Error('No comment found');
     setDescription(comment.description);
     setRating(comment.rating);
-    setIsModalVisible(true);
+    setIsAddCommentModalVisible(true);
   };
 
   const handleEdit = async () => {
@@ -54,7 +58,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setCom
         comment._id === commentIdToEdit ? { ...comment, ...commentToUpdate } : comment,
       );
       setComments(updatedComments);
-      setIsModalVisible(false);
+      setIsAddCommentModalVisible(false);
       setCommentIdToEdit('');
     } else {
       console.error('Error updating comment', response);
@@ -69,64 +73,76 @@ const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setCom
           itemLayout="horizontal"
           dataSource={comments}
           renderItem={(comment) => (
-            <List.Item
-              actions={
-                comment.userId === loggedUser?._id
-                  ? [
-                      <ConfigProvider
-                        theme={{
-                          token: {
-                            colorPrimary: '#FF8911',
-                          },
-                        }}
-                      >
-                        <Button icon={<EditOutlined />} onClick={() => handleEditButtonClick(comment._id)}>
-                          Edit
-                        </Button>
-                      </ConfigProvider>,
-                      <ConfigProvider
-                        theme={{
-                          token: {
-                            colorPrimary: '#FE0000',
-                          },
-                        }}
-                      >
-                        <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
-                          Delete
-                        </Button>
-                      </ConfigProvider>,
-                    ]
-                  : []
-              }
-            >
-              <List.Item.Meta
-                avatar={
-                  <Avatar
-                    shape="circle"
-                    src={comment.user?.profilePictureUrl ?? comment.movie?.posterUrl}
-                    alt={comment.user?.username ?? comment.movie?.title}
-                  />
+            <>
+              <List.Item
+                actions={
+                  comment.userId === loggedUser?._id
+                    ? [
+                        <ConfigProvider
+                          theme={{
+                            token: {
+                              colorPrimary: '#FF8911',
+                            },
+                          }}
+                        >
+                          <Button icon={<EditOutlined />} onClick={() => handleEditButtonClick(comment._id)}>
+                            Edit
+                          </Button>
+                        </ConfigProvider>,
+                        <ConfigProvider
+                          theme={{
+                            token: {
+                              colorPrimary: '#FE0000',
+                            },
+                          }}
+                        >
+                          <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
+                            Delete
+                          </Button>
+                        </ConfigProvider>,
+                      ]
+                    : []
                 }
-                title={isMoviePage ? comment.user?.username : comment.movie?.title}
-                description={
-                  <>
-                    <Rate disabled value={comment.rating} />
-                    <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
-                      {comment.description}
-                    </Typography.Paragraph>
-                  </>
-                }
-              />
-              <Tooltip title={moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
-                <span>{moment(comment.createdAt).fromNow()}</span>
-              </Tooltip>
-            </List.Item>
+              >
+                <List.Item.Meta
+                  avatar={
+                    <Avatar
+                      shape="circle"
+                      src={comment.user?.profilePictureUrl ?? comment.movie?.posterUrl}
+                      alt={comment.user?.username ?? comment.movie?.title}
+                    />
+                  }
+                  title={isMoviePage ? comment.user?.username : comment.movie?.title}
+                  description={
+                    <>
+                      <Rate disabled value={comment.rating} />
+                      <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+                        {comment.description}
+                      </Typography.Paragraph>
+                    </>
+                  }
+                />
+                <Tooltip title={moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
+                  <span>{moment(comment.createdAt).fromNow()}</span>
+                </Tooltip>
+                {!isCommentThread && (
+                  <div>
+                    <Button onClick={() => setActiveThreadCommentId(comment._id)}>See thread</Button>
+                    <CommentThreadModal
+                      isModalVisible={activeThreadCommentId === comment._id}
+                      setIsModalVisible={() => setActiveThreadCommentId(null)}
+                      comment={comment}
+                    />
+                  </div>
+                )}
+              </List.Item>
+            </>
           )}
         />
       </div>
       <AddCommentDialog
-        isModalVisible={isModalVisible}
-        setIsModalVisible={setIsModalVisible}
+        isModalVisible={isAddCommentModalVisible}
+        setIsModalVisible={setIsAddCommentModalVisible}
         handleSubmit={handleEdit}
         rating={rating}
         setRating={setRating}
