@@ -5,6 +5,7 @@ export const userSchema = z
     username: z.string(),
     email: z.string().email(),
     profilePictureUrl: z.string().url(),
+    isGoogleUser: z.boolean().default(false).optional(),
   })
   .strict();
 
