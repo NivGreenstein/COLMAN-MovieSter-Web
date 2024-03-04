@@ -29,6 +29,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
     }
     if (!id && !loggedUser) throw new Error('No user found');
 
+    if (!loggedUser) throw new Error('No user found');
     getCommentsByUserId(id ?? loggedUser?._id).then((commentsResponse) => setComments(commentsResponse));
   }, []);
 
