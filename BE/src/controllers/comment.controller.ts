@@ -86,6 +86,10 @@ export const getCommentsByUserId: CommentGetByUserId = async (req, res) => {
 export const createComment: CommentCreate = async (req, res) => {
   try {
     const comment = req.body as Comment;
+    //@ts-ignore
+    if (comment.userId !== req.userId) {
+      return res.status(httpCode.FORBIDDEN).json({ message: 'User cannot preform actions on behalf of someone else.' });
+    }
 
     CommentSchema.parse(comment);
 
