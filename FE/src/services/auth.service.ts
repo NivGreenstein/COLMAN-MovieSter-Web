@@ -34,6 +34,23 @@ const loginUser = async (email: string, password: string) => {
   return response;
 };
 
+const loginGoogle = async (code: string) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URI}/login/google`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ code }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Login failed');
+  }
+
+  return response;
+};
+
 export const logout = async () => {
   const response = await fetch('http://localhost:8080/logout', { method: 'POST', credentials: 'include' });
   if (!response.ok) {
@@ -64,4 +81,5 @@ export default {
   logout,
   getCurrentUserData,
   getNewAccessToken,
+  loginGoogle,
 };
