@@ -1,49 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import { Layout, Input, Row, Col, Avatar, Button } from 'antd';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { Layout, Row, Col } from 'antd';
 import Movie from '../MoviesPage/MovieTab';
 import { IMovie } from '../../types/IMovie';
-import { useNavigate } from 'react-router-dom';
-import AppHeader from '../header/AppHeader';
-import { getNowPlayingMovies, searchMovies } from '../../services/movies.service';
+import { getNowPlayingMovies } from '../../services/movies.service';
 
-const { Header, Content } = Layout;
-const { Search } = Input;
+const { Content } = Layout;
 
 const MovieListPage: React.FC = () => {
-  const navigate = useNavigate();
   const [movies, setMovies] = useState<IMovie[]>([]);
-  // const [searchMovieValue, setSearchMovieValue] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const initialRender = useRef(true);
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      if (true) {
-        const data = await getNowPlayingMovies();
-        setMovies(data);
-        return;
+  const lastMovieElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !initialRender.current) {
+        setPage((prevPage) => prevPage + 1);
       }
-
-      // const data = await searchMovies(searchMovieValue);
-      // setMovies(data);
-    };
-    fetchMovies();
+    });
+    if (node) observer.current.observe(node);
   }, []);
 
-  // const handleSearch = (value: string) => {
-  //   setSearchMovieValue(value);
-  // };
-
-  // const goToProfile = () => {
-  //   navigate('/profile');
-  // };
-
-  // const handleLogout = () => {};
+  useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+    } else {
+      getNowPlayingMovies(page).then((data) => setMovies((prevMovies) => [...prevMovies, ...data]));
+    }
+  }, [page]);
 
   return (
     <Layout style={{ minHeight: '100vh', minWidth: '100vw' }}>
       <Content style={{ padding: '50px' }}>
         <Row gutter={[16, 16]}>
-          {movies.map((movie) => (
-            <Col key={movie.id} xs={24} sm={12} md={8} lg={6} xl={4}>
+          {movies.map((movie, index) => (
+            <Col
+              ref={index === movies.length - 1 ? lastMovieElementRef : null}
+              key={`${movie.id}-${index}`}
+              xs={24}
+              sm={12}
+              md={8}
+              lg={6}
+              xl={4}
+            >
               <Movie movie={movie} />
             </Col>
           ))}
