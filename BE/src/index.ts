@@ -24,8 +24,8 @@ app.use(express.json({}), helmet(), xss(), cors(corsOptions), cookieParser());
 app.use('/', mainRouter);
 
 if (NODE_ENV === 'production') {
-  const privateKey = fs.readFileSync('../cert/client-key.pem');
-  const certificate = fs.readFileSync('../cert/client-cert.pem');
+  const privateKey = fs.readFileSync('./cert/client-key.pem');
+  const certificate = fs.readFileSync('./cert/client-cert.pem');
 
   const credentials = {
     key: privateKey,
@@ -50,7 +50,7 @@ const shutdown = async () => {
   await closeMongoDbConnection();
 };
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+// process.on('SIGTERM', shutdown);
+// process.on('SIGINT', shutdown);
 
 export default app;
