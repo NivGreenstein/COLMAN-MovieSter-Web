@@ -7,7 +7,7 @@
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "node build/index.js",
+    "start": "node dist/index.js",
     "start:dev": "nodemon src/index.ts"
   },
   "dependencies": {
