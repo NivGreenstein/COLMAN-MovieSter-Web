@@ -16,8 +16,10 @@ const fetchMovieById = async (id: string) => {
   }
 };
 
-const getNowPlayingMovies = async (): Promise<IMovie[]> => {
-  const response = await fetch(import.meta.env.VITE_API_URI + '/movies/now-playing', { credentials: 'include' });
+const getNowPlayingMovies = async (page: number = 1): Promise<IMovie[]> => {
+  const response = await fetch(import.meta.env.VITE_API_URI + `/movies/now-playing?page=${page}`, {
+    credentials: 'include',
+  });
   const data: IMovie[] = await response.json();
   return data;
 };
