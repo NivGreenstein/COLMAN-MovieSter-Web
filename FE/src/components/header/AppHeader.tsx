@@ -30,11 +30,11 @@ const AppHeader: React.FC<{ profileImageUrl?: string }> = ({ profileImageUrl }) 
     navigate('/profile');
   };
 
-  const onSelect = (value, option) => {
+  const onSelect = (_: unknown, option: { key: string }) => {
     navigate(`/movie/${option.key}`);
   };
 
-  const onSearch = (searchText) => {
+  const onSearch = (searchText: string) => {
     setSearchValue(searchText);
   };
 
