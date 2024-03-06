@@ -71,58 +71,32 @@ const CommentList: React.FC<CommentListProps> = ({comments, isMoviePage, setComm
                     renderItem={(comment) => (
                         <List.Item
                             actions={
-                                comment.userId === loggedUser?._id
-                                    ? [
-                                        <ConfigProvider
-                                            theme={{
-                                                token: {
-                                                    colorPrimary: '#FF8911',
-                                                },
-                                            }}
-                                        >
-                                            <Button icon={<EditOutlined/>}
-                                                    onClick={() => handleEditButtonClick(comment._id)}>
-                                                Edit
-                                            </Button>
-                                        </ConfigProvider>,
-                                        <ConfigProvider
-                                            theme={{
-                                                token: {
-                                                    colorPrimary: '#FE0000',
-                                                },
-                                            }}
-                                        >
-                                            <Button icon={<DeleteOutlined/>}
-                                                    onClick={() => handleDeleteComment(comment._id)}>
-                                                Delete
-                                            </Button>
-                                        </ConfigProvider>,
-                                    ]
-                                    : []
+                                comment.userId === loggedUser?._id ? [
+                                    <Button icon={<EditOutlined/>}
+                                            onClick={() => handleEditButtonClick(comment._id)}>Edit</Button>,
+                                    <Button icon={<DeleteOutlined/>}
+                                            onClick={() => handleDeleteComment(comment._id)}>Delete</Button>,
+                                ] : []
                             }
                         >
                             <List.Item.Meta
-                                avatar={
-                                    <Avatar
-                                        shape="circle"
-                                        src={comment.user?.profilePictureUrl ?? comment.movie?.posterUrl}
-                                        alt={comment.user?.username ?? comment.movie?.title}
-                                    />
-                                }
+                                avatar={<Avatar shape="circle"
+                                                src={comment.user?.profilePictureUrl ?? comment.movie?.posterUrl}/>}
                                 title={isMoviePage ? comment.user?.username : comment.movie?.title}
                                 description={
                                     <>
                                         <Rate disabled value={comment.rating}/>
-                                        {comment.imagePath && (
-                                            <Image
-                                                width={200}
-                                                src={`${import.meta.env.VITE_API_URI}/${comment.imagePath}`}
-                                                alt="Comment image"
-                                            />
-                                        )}
                                         <Typography.Paragraph ellipsis={{rows: 2, expandable: true, symbol: 'more'}}>
                                             {comment.description}
                                         </Typography.Paragraph>
+                                        {comment.imagePath && (
+                                            <Image
+                                                width={50}
+                                                src={`${import.meta.env.VITE_API_URI}/${comment.imagePath}`}
+                                                alt="Comment image"
+                                                style={{display: 'block', marginTop: '10px'}} // Add margin as needed
+                                            />
+                                        )}
                                     </>
                                 }
                             />
@@ -130,6 +104,7 @@ const CommentList: React.FC<CommentListProps> = ({comments, isMoviePage, setComm
                                 <span>{moment(comment.createdAt).fromNow()}</span>
                             </Tooltip>
                         </List.Item>
+
                     )}
                 />
             </div>
