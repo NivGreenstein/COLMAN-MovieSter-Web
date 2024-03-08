@@ -94,6 +94,10 @@ export const updateComment = async (comment: Partial<WithId<Comment>>, userId: s
   const collection = await getCollection();
   const { _id, ...commentWithoutId } = comment;
 
+  if (comment.imagePath) {
+    commentWithoutId.imagePath = comment.imagePath;
+  }
+
   const data = await collection.updateOne(
     { _id: new ObjectId(_id), userId: new ObjectId(userId) },
     {

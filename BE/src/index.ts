@@ -20,7 +20,9 @@ const corsOptions: CorsOptions = {
   optionsSuccessStatus: 200,
 };
 
-app.use(express.json({}), helmet(), xss(), cors(corsOptions), cookieParser());
+app.use(express.json({}), helmet({
+    crossOriginResourcePolicy: false,
+}), xss(), cors(corsOptions), cookieParser());
 app.use('/', mainRouter);
 
 if (NODE_ENV === 'production') {
@@ -45,9 +47,12 @@ if (NODE_ENV === 'production') {
   });
 }
 
+app.use('/uploads', express.static('uploads'));
+
+
 const shutdown = async () => {
-  console.log('Gracefully shutting down');
-  await closeMongoDbConnection();
+    console.log('Gracefully shutting down');
+    await closeMongoDbConnection();
 };
 
 // process.on('SIGTERM', shutdown);

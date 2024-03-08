@@ -1,22 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Layout, Row, Col, Rate, Typography, Divider } from 'antd';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Layout, Row, Col, Rate, Typography, Divider} from 'antd';
 import CommentList from '../Comments/CommentsList';
-import { Comment } from '../../types/IComment';
-import { IMovie } from '../../types/IMovie';
-import { useParams } from 'react-router-dom';
-import { fetchMovieById } from '../../services/movies.service';
+import {Comment} from '../../types/IComment';
+import {IMovie} from '../../types/IMovie';
+import {useParams} from 'react-router-dom';
+import {fetchMovieById} from '../../services/movies.service';
 import { getCommentsByMovieId } from '../../services/comments.service';
 import { AddComment } from '../Comments/AddComment';
-import { useSession } from '../../context/SessionContext';
+import {useSession} from '../../context/SessionContext';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 const MovieInfoPage: React.FC = () => {
-  const { id } = useParams();
-  const [movie, setMovie] = useState<IMovie | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const { loggedUser } = useSession();
+    const {id} = useParams();
+    const [movie, setMovie] = useState<IMovie | null>(null);
+    const [comments, setComments] = useState<Comment[]>([]);
+    const {loggedUser} = useSession();
 
   useEffect(() => {
     if (id) {
@@ -34,9 +34,9 @@ const MovieInfoPage: React.FC = () => {
     return comments.find(({ userId }) => userId === loggedUser?._id);
   }, [comments, loggedUser]);
 
-  if (!movie) {
-    return <div style={{ width: '100%', height: 'auto', maxHeight: '100vh', maxWidth: '100vw' }}>Loading...</div>;
-  }
+    if (!movie) {
+        return <div style={{width: '100%', height: 'auto', maxHeight: '100vh', maxWidth: '100vw'}}>Loading...</div>;
+    }
 
   return (
     <Layout>

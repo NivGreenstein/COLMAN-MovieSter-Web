@@ -217,7 +217,7 @@ paths:
           $ref: "#/components/responses/UnexpectedError"
   /comments:
     post:
-      summary: Create new comment
+      summary: Create new comment with an optional image
       operationId: createComment
       tags:
         - authenticated routes
@@ -230,16 +230,29 @@ paths:
             type: string
           description: JWT Access token
       requestBody:
-        description: send new comment data
+        description: Send new comment data along with an optional image
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              allOf:
-                - $ref: "#/components/schemas/CommentCreate"
-        required: true
+              type: object
+              properties:
+                description:
+                  type: string
+                rating:
+                  type: number
+                movieId:
+                  type: string
+                userId:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+              required:
+                - description
+                - rating
       responses:
         "201":
-          description: created
+          description: Created
           content:
             application/json:
               schema:
@@ -252,7 +265,7 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        5XX:
+        "5XX":
           $ref: "#/components/responses/UnexpectedError"
     patch:
       summary: Update comment
@@ -559,6 +572,32 @@ paths:
           description: user logged out successfuly and cookies deleted and revoked
         5XX:
           $ref: "#/components/responses/UnexpectedError"
+  /uploads/{filename}:
+    get:
+      summary: Access Uploaded Images
+      description: |
+        This endpoint serves uploaded images statically. Replace `{filename}` with the actual name of the image file you wish to access. This is not an API endpoint but a static file server configured in the Express.js application.
+      parameters:
+        - in: path
+          name: filename
+          required: true
+          schema:
+            type: string
+          description: The filename of the uploaded image.
+      responses:
+        "200":
+          description: The image file is served.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Image not found.
 components:
   responses:
     Unauthorized:
@@ -776,3 +815,4 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Comment"
+
