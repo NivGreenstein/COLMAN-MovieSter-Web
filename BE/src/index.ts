@@ -46,7 +46,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/', mainRouter);
-app.use('/uploads', express.static('uploads'));
 
 if (NODE_ENV === 'production') {
   const privateKey = fs.readFileSync('../cert/client-key.pem', 'utf8');
