@@ -15,8 +15,9 @@ const corsOptions: CorsOptions = {
 	origin: '*',
 };
 
-app.use(helmet(), xss(), cors(corsOptions));
-app.get('/', (req, res) => {
+app.use(express.static('/home/st111/COLMAN-MovieSter-Web/FE/dist'));
+
+app.get('*', (req, res) => {
 	res.sendFile('/home/st111/COLMAN-MovieSter-Web/FE/dist/index.html');
 });
 
