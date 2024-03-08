@@ -1,25 +1,60 @@
-import React, { useState } from 'react';
-import { Avatar, Button, Form, Input, Layout, Upload, message } from 'antd';
+import React, {useEffect, useState} from 'react';
+import {Avatar, Button, Form, Input, Layout, Upload, message} from 'antd';
 import {UserOutlined, SaveOutlined, CloseOutlined, UploadOutlined, EditOutlined} from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
+import {useSession} from "../../../context/SessionContext";
+import {updateUser} from "../../../services/user.service";
+import {IUser} from "../../../types/IUser";
 
-const { Content } = Layout;
+const {Content} = Layout;
 
 const EditUserProfile: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
-
+    const {loggedUser, setLoggedUser} = useSession();
     const [username, setUsername] = useState<string>('');
-    // Assuming you have a method to get the current user's image
     const [profileImage, setProfileImage] = useState<string>('');
 
-    const handleSave = () => {
-        message.success('Profile updated successfully!');
-        // Here you will include the logic to save the updated user profile
-    };
+    useEffect(() => {
+        if (loggedUser) {
+            setUsername(loggedUser.username);
+            setProfileImage(loggedUser.profilePictureUrl);
+            form.setFieldsValue({
+                username: loggedUser.username,
+                profileImage: loggedUser.profilePictureUrl,
+            });
+        }
+    }, [loggedUser, form]);
+
+
+    const handleSave = async () => {
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('_id', loggedUser._id);
+        formData.append('email', loggedUser.email); // Assuming email is not being changed
+
+        if (profileImage) {
+            formData.append('profilePictureUrl', profileImage);
+        }
+
+        try {
+            await updateUser(loggedUser._id, formData);
+            if (loggedUser) {
+                const updatedUser: IUser = {
+                    ...loggedUser,
+                    username: username,
+                };
+                setLoggedUser(updatedUser);
+            }
+            message.success('Profile updated successfully!');
+            navigate('/profile');
+        } catch (error) {
+            message.error('Failed to update profile.');
+        }
+    }
 
     const handleCancel = () => {
-        navigate(-1); // Go back to the previous page
+        navigate(-1);
     };
 
     const handleImageChange = (info: any) => {
@@ -35,27 +70,31 @@ const EditUserProfile: React.FC = () => {
 
     const uploadButton = (
         <div>
-            <UploadOutlined style={{zIndex: 1000}} />
-            <div style={{ marginTop: 8 }}>Upload</div>
+            <UploadOutlined style={{zIndex: 1000}}/>
+            <div style={{marginTop: 8}}>Upload</div>
         </div>
     );
 
     return (
         <Layout>
-            <Content style={{ padding: '50px',minHeight: '100vh', minWidth: '100vw' }}>
+            <Content style={{padding: '50px', minHeight: '100vh', minWidth: '100vw'}}>
                 <Form layout="vertical" form={form} onFinish={handleSave}>
-                    <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    <div style={{textAlign: 'center', marginBottom: '24px'}}>
                         <Upload
-                            name="avatar"
+                            name="profileImage"
                             listType="picture-card"
                             className="avatar-uploader"
                             showUploadList={false}
                             beforeUpload={() => false}
                             onChange={handleImageChange}
                         >
-                            {profileImage ? <Avatar src={profileImage} size={120} /> : uploadButton}
+                            {form.getFieldValue('profileImage') ? (
+                                <Avatar src={form.getFieldValue('profileImage')} size={120}/>
+                            ) : (
+                                uploadButton
+                            )}
                         </Upload>
-                        <Button type="primary" icon={<EditOutlined />} style={{ marginTop: '10px' }}>
+                        <Button type="primary" icon={<EditOutlined/>} style={{marginTop: '10px'}}>
                             Edit Image
                         </Button>
                     </div>
@@ -63,21 +102,21 @@ const EditUserProfile: React.FC = () => {
                     <Form.Item
                         name="username"
                         label="Username"
-                        rules={[{ required: true, message: 'Please input your username!' }]}
+                        rules={[{required: true, message: 'Please input your username!'}]}
                     >
                         <Input
-                            prefix={<UserOutlined />}
-                            value={username}
+                            name="username"
+                            prefix={<UserOutlined/>}
                             onChange={(e) => setUsername(e.target.value)}
                             placeholder="Username"
                         />
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" icon={<SaveOutlined />} style={{ marginRight: '8px' }}>
+                        <Button type="primary" htmlType="submit" icon={<SaveOutlined/>} style={{marginRight: '8px'}}>
                             Save
                         </Button>
-                        <Button onClick={handleCancel} icon={<CloseOutlined />}>
+                        <Button onClick={handleCancel} icon={<CloseOutlined/>}>
                             Cancel
                         </Button>
                     </Form.Item>

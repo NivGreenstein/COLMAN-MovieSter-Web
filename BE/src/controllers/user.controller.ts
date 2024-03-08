@@ -6,9 +6,9 @@ import { ObjectId, WithId } from 'mongodb';
 import { ErrorResponse } from '../Globals';
 import * as service from '../services/user.service';
 import { User, UserMongoDB, UserRegister, userRegisterSchema, userSchema } from '../models/user.model';
+import {UserUpdate} from "../types/userRequest.type";
 
 export type PartialUserUpdate = WithId<Partial<User>>;
-export type UserUpdate = RequestHandler<PartialUserUpdate, undefined | ErrorResponse>;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export type UserCreate = RequestHandler<UserRegister, { _id: string | ObjectId } | ErrorResponse>;
 export type UserDelete = RequestHandler<{ id: string }, undefined | ErrorResponse>;

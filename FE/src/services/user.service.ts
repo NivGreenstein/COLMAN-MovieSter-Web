@@ -9,4 +9,19 @@ const getUserById = async (id: string): Promise<IUser> => {
   return user;
 };
 
-export { getUserById };
+
+const updateUser = async (id: string, userData: FormData): Promise<IUser> => {
+  const response = await fetch(`${import.meta.env.VITE_API_URI}/users`, {
+    method: 'PATCH',
+    credentials: 'include',
+    body: userData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Could not update user profile');
+  }
+
+  return await response as IUser;
+};
+
+export { getUserById, updateUser };
