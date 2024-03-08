@@ -63,7 +63,7 @@ const createComment = async (commentData: CommentBase, image?: File): Promise<{ 
 };
 
 
-const patchComment = async (comment: Partial<Comment>, image?: File): Promise<Response | null> => {
+const patchComment = async (comment: Partial<Comment>, image?: File): Promise<any | null> => {
     const formData = new FormData();
 
     formData.append('description', comment.description ? comment.description : '');

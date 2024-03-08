@@ -8,6 +8,7 @@ import {fetchMovieById} from '../../services/movies.service';
 import {getCommentsByMovieId} from '../../services/comments.service';
 import {AddComment} from '../Comments/AddComment';
 import {useSession} from '../../context/SessionContext';
+import {RcFile} from "antd/es/upload/interface";
 
 const {Content} = Layout;
 const {Title, Paragraph} = Typography;
@@ -17,7 +18,7 @@ const MovieInfoPage: React.FC = () => {
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
     const {loggedUser} = useSession();
-    const [image, setImage] = useState('');
+    const [, setImage] = useState<RcFile | null>(null);
     const [imagePreview, setImagePreview] = useState('');
 
     useEffect(() => {
@@ -67,7 +68,8 @@ const MovieInfoPage: React.FC = () => {
                         <Paragraph>{movie.description}</Paragraph>
                         <Divider/>
                         <AddComment isDisabled={!!userExistingComment} movieId={movie.id}
-                                    fetchComments={fetchComments}/>
+                                    fetchComments={fetchComments} imagePreview={imagePreview}
+                                    setImagePreview={setImagePreview} setImage={setImage}/>
                         <CommentList comments={comments} isMoviePage={true} setComments={setComments}
                                      setImagePreview={setImagePreview} imagePreview={imagePreview}/>
                     </Col>
