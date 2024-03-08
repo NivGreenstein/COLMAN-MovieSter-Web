@@ -1,23 +1,21 @@
 import express from 'express';
 import { config as dotenvConfig } from 'dotenv';
 import fs from 'fs';
-import helmet from 'helmet';
 import https from 'https';
-//@ts-ignore
-import { xss } from 'express-xss-sanitizer';
-import cors, { CorsOptions } from 'cors';
 
 dotenvConfig();
 
 const { PORT: serverPort, NODE_ENV } = process.env;
 const app = express();
-const corsOptions: CorsOptions = {
-	origin: '*',
-};
+
+app.use((_, res, next) => {
+	res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+	next();
+});
 
 app.use(express.static('/home/st111/COLMAN-MovieSter-Web/FE/dist'));
 
-app.get('*', (req, res) => {
+app.get('*', (_, res) => {
 	res.sendFile('/home/st111/COLMAN-MovieSter-Web/FE/dist/index.html');
 });
 
