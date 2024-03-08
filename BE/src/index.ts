@@ -41,7 +41,7 @@ app.use(
 app.use('/', mainRouter);
 
 if (NODE_ENV === 'production') {
-  const privateKey = fs.readFileSync(`${process.env.CERT_FOLDER}/client-key.pem'`, 'utf8');
+  const privateKey = fs.readFileSync(`${process.env.CERT_FOLDER}/client-key.pem`, 'utf8');
   const certificate = fs.readFileSync(`${process.env.CERT_FOLDER}/client-cert.pem`, 'utf8');
 
   const credentials = {
