@@ -69,6 +69,34 @@ paths:
           $ref: "#/components/responses/BadRequest"
         5XX:
           $ref: "#/components/responses/UnexpectedError"
+  /login/google:
+    post:
+      tags:
+        - unauthenticated routes
+      summary: login a user using google oauth
+      requestBody:
+        description: send credentials
+        content:
+          application/json:
+            schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+        required: true
+      operationId: loginGoogle
+      responses:
+        "200":
+          description: logged in
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: access-token=[headers].[payload].[secret]; Max-Age=900; Path=/; Expires=Tue, 27 Feb 2024 14:58:24 GMT; HttpOnly; Secure; SameSite=None
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
   /token:
     get:
       summary: creates new access token
@@ -239,7 +267,7 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "5XX":
           $ref: "#/components/responses/UnexpectedError"
-    put:
+    patch:
       summary: Update comment
       operationId: updateComment
       tags:
@@ -380,6 +408,40 @@ paths:
             type: number
           required: true
           description: movie's id
+        - in: cookie
+          name: access-token
+          required: true
+          schema:
+            type: string
+          description: JWT Access token
+      responses:
+        "200":
+          description: comment array
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentArray"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        5XX:
+          $ref: "#/components/responses/UnexpectedError"
+  /comments/thread/${mainCommentId}:
+    get:
+      summary: get comments thread by main comment id
+      operationId: getCommentsThread
+      tags:
+        - authenticated routes
+        - comments
+      parameters:
+        - in: path
+          name: mainCommentId
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+          required: true
+          description: main comment id
         - in: cookie
           name: access-token
           required: true

@@ -36,9 +36,7 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
                                                            }) => {
 
 
-    // useEffect(() => {
-    //     setImagePreview(image)
-    // })
+
     const handleOk = () => {
         handleSubmit();
         setIsModalVisible(false);
@@ -76,8 +74,7 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
     };
 
     return (
-        <>
-            <Modal
+        <Modal
                 title={isEditMode ? 'Edit Comment' : 'Create Comment'}
                 open={isModalVisible}
                 onOk={handleOk}
@@ -124,7 +121,7 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
                     </Form.Item>
                 </Form>
             </Modal>
-        </>
+
     );
 };
 

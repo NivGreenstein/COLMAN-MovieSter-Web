@@ -1,7 +1,7 @@
-import { IUser } from '../types/IUser';
+import { IBaseUser, IUser } from '../types/IUser';
 
-const registerUser = async (payload: IUser) => {
-  const response = await fetch('http://localhost:8080/register', {
+const registerUser = async (payload: IBaseUser) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URI}/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -34,8 +34,25 @@ const loginUser = async (email: string, password: string) => {
   return response;
 };
 
+const loginGoogle = async (code: string) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URI}/login/google`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ code }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Login failed');
+  }
+
+  return response;
+};
+
 export const logout = async () => {
-  const response = await fetch('http://localhost:8080/logout', { method: 'POST', credentials: 'include' });
+  const response = await fetch(`${import.meta.env.VITE_API_URI}/logout`, { method: 'POST', credentials: 'include' });
   if (!response.ok) {
     throw new Error('Logout failed');
   }
@@ -51,7 +68,7 @@ const getCurrentUserData = async (): Promise<IUser> => {
 };
 
 const getNewAccessToken = async () => {
-  const response = await fetch('http://localhost:8080/token', {
+  const response = await fetch(`${import.meta.env.VITE_API_URI}/token`, {
     method: 'GET',
     credentials: 'include',
   });
@@ -64,4 +81,5 @@ export default {
   logout,
   getCurrentUserData,
   getNewAccessToken,
+  loginGoogle,
 };

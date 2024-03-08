@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, message, Typography } from 'antd';
+import React from 'react';
+import { Button, Form, Input, message } from 'antd';
 import GoogleLoginButton from '../GoogleLoginButton/GoogleLoginButton';
 import logo from '../../../assets/logo.png'; // Make sure this path is correct
 import { Link, useNavigate } from 'react-router-dom';
@@ -84,7 +84,7 @@ const LoginPage: React.FC = () => {
         </Form.Item>
         <div style={{ textAlign: 'center' }}>
           Don't have an account?
-          <Link to="/register" component={Typography.Link} style={{ marginLeft: '5px' }}>
+          <Link to="/register" style={{ marginLeft: '5px' }}>
             Sign up
           </Link>
         </div>

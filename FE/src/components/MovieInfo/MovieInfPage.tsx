@@ -1,161 +1,76 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Layout, Row, Col, Rate, Typography, Divider, Button} from 'antd';
+import {Layout, Row, Col, Rate, Typography, Divider} from 'antd';
 import CommentList from '../Comments/CommentsList';
-import {Comment, CommentBase, CommentFullSchema, CommentSchema} from '../../types/IComment';
+import {Comment} from '../../types/IComment';
 import {IMovie} from '../../types/IMovie';
 import {useParams} from 'react-router-dom';
 import {fetchMovieById} from '../../services/movies.service';
-import {createComment, getCommentsByMovieId, patchComment} from '../../services/comments.service';
-import AddCommentDialog from '../Comments/AddCommentDialog';
+import { getCommentsByMovieId } from '../../services/comments.service';
+import { AddComment } from '../Comments/AddComment';
 import {useSession} from '../../context/SessionContext';
 
-const {Content} = Layout;
-const {Title, Paragraph} = Typography;
+const { Content } = Layout;
+const { Title, Paragraph } = Typography;
 
 const MovieInfoPage: React.FC = () => {
     const {id} = useParams();
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [description, setDescription] = useState('');
-    const [rating, setRating] = useState(0);
     const {loggedUser} = useSession();
-    const [image, setImage] = useState('');
-    const [imagePreview, setImagePreview] = useState('');
 
+  useEffect(() => {
+    if (id) {
+      fetchMovieById(id).then((data) => setMovie(data));
+      fetchComments();
+    }
+  }, [id]);
 
-    const showModal = () => {
-        setIsModalVisible(true);
-    };
+  const fetchComments = () => {
+    if (!id) return;
+    getCommentsByMovieId(id).then((data) => setComments(data ?? []));
+  };
 
-    const userExistingComment = useMemo(() => {
-        return comments.find(({userId}) => userId === loggedUser?._id);
-    }, [comments, loggedUser]);
-
-    useEffect(() => {
-        if (userExistingComment) {
-            setDescription(userExistingComment.description);
-            setRating(userExistingComment.rating);
-        }
-    }, [userExistingComment]);
-
-    useEffect(() => {
-        if (id) {
-            fetchMovieById(id).then((data) => setMovie(data));
-            getCommentsByMovieId(id).then((data) => setComments(data ?? []));
-        }
-    }, [id]);
-
-    const restartAddCommentStates = () => {
-        setDescription('');
-        setRating(0);
-    };
-
-    const handleSubmit = async () => {
-        if (!movie || !loggedUser) {
-            throw new Error('Movie not found or User not logged in.');
-        }
-
-
-        if (userExistingComment) {
-            const commentToUpdate = {
-                _id: userExistingComment._id,
-                description: description,
-                rating: rating,
-            };
-            CommentFullSchema.partial().parse(commentToUpdate);
-
-            const updatedComment = await patchComment(commentToUpdate);
-
-            if (updatedComment) {
-                console.log('Comment updated', updatedComment);
-                const updatedComments = comments.filter((comment) => comment._id !== userExistingComment._id);
-                setComments([
-                    ...updatedComments,
-                    {
-                        ...userExistingComment,
-                        description: description,
-                        rating: rating,
-                    },
-                ]);
-                setIsModalVisible(false);
-            }
-            return;
-        }
-
-        const commentToCreate: CommentBase = {
-            description: description,
-            rating: rating,
-            movieId: movie?.id ?? 0,
-            userId: loggedUser._id,
-        };
-        CommentSchema.parse(commentToCreate);
-
-        const createdComment = await createComment(commentToCreate, image);
-
-        if (createdComment) {
-            console.log('Comment created', createdComment);
-            getCommentsByMovieId(`${movie.id}`).then((data) => setComments(data ?? []));
-            restartAddCommentStates();
-            setIsModalVisible(false);
-        }
-    };
+  const userExistingComment = useMemo(() => {
+    return comments.find(({ userId }) => userId === loggedUser?._id);
+  }, [comments, loggedUser]);
 
     if (!movie) {
         return <div style={{width: '100%', height: 'auto', maxHeight: '100vh', maxWidth: '100vw'}}>Loading...</div>;
     }
 
-    return (
-        <Layout>
-            <Content style={{padding: '2rem'}}>
-                <Row gutter={16}>
-                    <Col span={8}>
-                        <img src={movie.posterUrl} alt={movie.title} style={{width: '100%', height: 'auto'}}/>
-                    </Col>
-                    <Col span={16}>
-                        <Title level={2}>{movie.title}</Title>
-                        <Row gutter={4}>
-                            <Col span={4}>
-                                <p>Official Rating:</p>
-                                <Rate disabled value={movie.rating / 2}/>
-                            </Col>
-                            <Col span={4}>
-                                <p>Users' Rating</p>
-                                <Rate
-                                    disabled
-                                    value={
-                                        comments.length ? comments.reduce((sum, comment) => comment.rating + sum, 0) / comments.length : 0
-                                    }
-                                />
-                            </Col>
-                        </Row>
-                        <Paragraph>{movie.description}</Paragraph>
-                        <Divider/>
-                        <Button type="primary" onClick={showModal} disabled={!!userExistingComment}>
-                            Create Comment
-                        </Button>
-                        <AddCommentDialog
-                            isModalVisible={isModalVisible}
-                            setIsModalVisible={setIsModalVisible}
-                            handleSubmit={handleSubmit}
-                            rating={rating}
-                            setRating={setRating}
-                            description={description}
-                            setDescription={setDescription}
-                            isEditMode={!!userExistingComment}
-                            restartStates={restartAddCommentStates}
-                            image={image}
-                            setImage={setImage}
-                            setImagePreview={setImagePreview}
-                            imagePreview={imagePreview}
-                        />
-                        <CommentList comments={comments} isMoviePage={true} setComments={setComments}
-                                     imagePreview={imagePreview} setImagePreview={setImagePreview}/>
-                    </Col>
-                </Row>
-            </Content>
-        </Layout>
-    );
+  return (
+    <Layout>
+      <Content style={{ padding: '2rem' }}>
+        <Row gutter={16}>
+          <Col span={8}>
+            <img src={movie.posterUrl} alt={movie.title} style={{ width: '100%', height: 'auto' }} />
+          </Col>
+          <Col span={16}>
+            <Title level={2}>{movie.title}</Title>
+            <Row gutter={4}>
+              <Col span={4}>
+                <p>Official Rating:</p>
+                <Rate disabled value={movie.rating / 2} />
+              </Col>
+              <Col span={4}>
+                <p>Users' Rating</p>
+                <Rate
+                  disabled
+                  value={
+                    comments.length ? comments.reduce((sum, comment) => comment.rating + sum, 0) / comments.length : 0
+                  }
+                />
+              </Col>
+            </Row>
+            <Paragraph>{movie.description}</Paragraph>
+            <Divider />
+            <AddComment isDisabled={!!userExistingComment} movieId={movie.id} fetchComments={fetchComments} />
+            <CommentList comments={comments} isMoviePage={true} setComments={setComments} />
+          </Col>
+        </Row>
+      </Content>
+    </Layout>
+  );
 };
 
 export default MovieInfoPage;

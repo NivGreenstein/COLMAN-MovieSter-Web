@@ -20,7 +20,7 @@ export const SessionContext = createContext<SessionContextType>(defaultState);
 
 export const useSession = () => useContext(SessionContext);
 
-export const SessionProvider = ({ children }) => {
+export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loggedUser, setLoggedUser] = useState<IUser | null>(null);

@@ -114,4 +114,22 @@ const deleteComment = async (id: string): Promise<Response | null> => {
     }
 };
 
-export {getCommentsByMovieId, getCommentsByUserId, createComment, patchComment, deleteComment};
+const commentsThread = async (mainCommentId: string): Promise<Comment[]> => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URI}/comments/thread/${mainCommentId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    const data: Comment[] = await response.json();
+    return data.map((comment) => ({
+      ...comment,
+      createdAt: new Date(comment.createdAt),
+      updatedAt: new Date(comment.updatedAt),
+    }));
+  } catch (error) {
+    console.error('Fetching comments thread failed', error);
+    return [];
+  }
+};
+
+export { getCommentsByMovieId, getCommentsByUserId, createComment, patchComment, deleteComment, commentsThread };

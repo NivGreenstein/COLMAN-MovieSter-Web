@@ -6,6 +6,7 @@ import {Comment, CommentFullSchema} from '../../types/IComment';
 import {useSession} from '../../context/SessionContext';
 import {deleteComment, patchComment} from '../../services/comments.service';
 import AddCommentDialog from './AddCommentDialog';
+import { CommentThreadModal } from './CommentThreadModal';
 
 interface CommentListProps {
     comments: Comment[];
@@ -13,21 +14,19 @@ interface CommentListProps {
     isMoviePage: boolean;
     setImagePreview: (value: string) => void;
     imagePreview: string | undefined;
+    isCommentThread?: boolean;
 }
 
-const CommentList: React.FC<CommentListProps> = ({
-                                                     comments,
-                                                     isMoviePage,
-                                                     setComments,
-                                                     imagePreview,
-                                                     setImagePreview
-                                                 }) => {
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [commentIdToEdit, setCommentIdToEdit] = useState('');
-    const [description, setDescription] = useState('');
-    const [rating, setRating] = useState(0);
-    const [image, setImage] = useState('');
-    const {loggedUser} = useSession();
+const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setComments, isCommentThread = false }) => {
+  const [isAddCommentModalVisible, setIsAddCommentModalVisible] = useState(false);
+  const [activeThreadCommentId, setActiveThreadCommentId] = useState<string | null>(null);
+
+  const [commentIdToEdit, setCommentIdToEdit] = useState('');
+  const [description, setDescription] = useState('');
+  const [rating, setRating] = useState(0);
+  const { loggedUser } = useSession();
+  const [image, setImage] = useState('');
+
 
 
     const handleDeleteComment = async (commentId: string) => {
@@ -45,7 +44,7 @@ const CommentList: React.FC<CommentListProps> = ({
         if (!comment) throw new Error('No comment found');
         setDescription(comment.description);
         setRating(comment.rating);
-        setIsModalVisible(true);
+        setIsAddCommentModalVisible(true);
         if (comment.imagePath) {
             setImagePreview(`${import.meta.env.VITE_API_URI}/${comment.imagePath}`)
         }
@@ -73,7 +72,7 @@ const CommentList: React.FC<CommentListProps> = ({
                 } : comment,
             );
             setComments(updatedComments);
-            setIsModalVisible(false);
+            setIsAddCommentModalVisible(false);
             setCommentIdToEdit('');
         } catch (error) {
             console.error('Error updating comment', error);
@@ -88,10 +87,11 @@ const CommentList: React.FC<CommentListProps> = ({
                     itemLayout="horizontal"
                     dataSource={comments}
                     renderItem={(comment) => (
-                        <List.Item
+                        <>
+              <List.Item
                             actions={
                                 comment.userId === loggedUser?._id ? [
-                                    <Button icon={<EditOutlined/>}
+                                      <Button icon={<EditOutlined/>}
                                             onClick={() => handleEditButtonClick(comment._id)}>Edit</Button>,
                                     <Button icon={<DeleteOutlined/>}
                                             onClick={() => handleDeleteComment(comment._id)}>Delete</Button>,
@@ -101,7 +101,7 @@ const CommentList: React.FC<CommentListProps> = ({
                             <List.Item.Meta
                                 avatar={<Avatar shape="circle"
                                                 src={comment.user?.profilePictureUrl ?? comment.movie?.posterUrl}/>}
-                                title={isMoviePage ? comment.user?.username : comment.movie?.title}
+                                  title={isMoviePage ? comment.user?.username : comment.movie?.title}
                                 description={
                                     <>
                                         <Rate disabled value={comment.rating}/>
@@ -122,14 +122,25 @@ const CommentList: React.FC<CommentListProps> = ({
                             <Tooltip title={moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
                                 <span>{moment(comment.createdAt).fromNow()}</span>
                             </Tooltip>
-                        </List.Item>
+                        {!isCommentThread && (
+                  <div>
+                    <Button onClick={() => setActiveThreadCommentId(comment._id)}>See thread</Button>
+                    <CommentThreadModal
+                      isModalVisible={activeThreadCommentId === comment._id}
+                      setIsModalVisible={() => setActiveThreadCommentId(null)}
+                      comment={comment}
+                    />
+                  </div>
+                )}
+              </List.Item>
+            </>
 
                     )}
                 />
             </div>
             <AddCommentDialog
-                isModalVisible={isModalVisible}
-                setIsModalVisible={setIsModalVisible}
+                isModalVisible={isAddCommentModalVisible}
+                setIsModalVisible={setIsAddCommentModalVisible}
                 handleSubmit={handleEdit}
                 rating={rating}
                 setRating={setRating}
