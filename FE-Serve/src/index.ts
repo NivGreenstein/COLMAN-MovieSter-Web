@@ -20,8 +20,14 @@ app.get('*', (_, res) => {
 });
 
 if (NODE_ENV === 'production') {
-	const privateKey = fs.readFileSync('../cert/client-key.pem', 'utf8');
-	const certificate = fs.readFileSync('../cert/client-cert.pem', 'utf8');
+	const privateKey = fs.readFileSync(
+		`${process.env.CERT_FOLDER}/client-key.pem'`,
+		'utf8'
+	);
+	const certificate = fs.readFileSync(
+		`${process.env.CERT_FOLDER}/client-cert.pem`,
+		'utf8'
+	);
 
 	const credentials = {
 		key: privateKey,

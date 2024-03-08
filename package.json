@@ -1,0 +1,13 @@
+{
+	"scripts": {
+		"install:FE": "cd ./FE && npm install",
+		"build:FE": "cd ./FE && npm run build",
+		"build:FE-Serve": "cd ./FE-Serve && npm run build",
+		"build:BE": "cd ./BE && npm run build",
+		"preprod": "npm run build:FE && npm run build:FE-Serve && npm run build:BE",
+		"prod": "pm2 restart ecosystem.config.js --env production"
+	},
+	"dependencies": {
+		"pm2": "^5.3.1"
+	}
+}

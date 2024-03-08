@@ -37,19 +37,12 @@ app.use(
   cors(corsOptions),
   cookieParser()
 );
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header('Access-Control-Allow-Methods', '*');
-//   res.header('Access-Control-Allow-Headers', '*');
-//   res.header('Access-Control-Allow-Credentials', 'true');
-//   next();
-// });
 
 app.use('/', mainRouter);
 
 if (NODE_ENV === 'production') {
-  const privateKey = fs.readFileSync('../cert/client-key.pem', 'utf8');
-  const certificate = fs.readFileSync('../cert/client-cert.pem', 'utf8');
+  const privateKey = fs.readFileSync(`${process.env.CERT_FOLDER}/client-key.pem'`, 'utf8');
+  const certificate = fs.readFileSync(`${process.env.CERT_FOLDER}/client-cert.pem`, 'utf8');
 
   const credentials = {
     key: privateKey,
@@ -70,13 +63,5 @@ if (NODE_ENV === 'production') {
     console.log(`HTTP Server running on port ${serverPort}`);
   });
 }
-
-const shutdown = async () => {
-  console.log('Gracefully shutting down');
-  await closeMongoDbConnection();
-};
-
-// process.on('SIGTERM', shutdown);
-// process.on('SIGINT', shutdown);
 
 export default app;
