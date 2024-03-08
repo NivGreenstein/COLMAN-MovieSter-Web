@@ -15,23 +15,48 @@ dotenvConfig();
 const { PORT: serverPort, NODE_ENV } = process.env;
 const app = express();
 const corsOptions: CorsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:4200', 'http://localhost:5173'],
+  origin: [
+    'http://node60.cs.colman.ac.il',
+    'http://193.106.55.220',
+    'https://node60.cs.colman.ac.il',
+    'https://193.106.55.220',
+    'http://localhost:3000',
+    'http://localhost:4200',
+    'http://localhost:5173',
+  ],
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
-app.use(express.json({}), helmet({
+app.use(
+  express.json({}),
+  helmet({
     crossOriginResourcePolicy: false,
-}), xss(), cors(corsOptions), cookieParser());
+  }),
+  xss(),
+  cors(corsOptions),
+  cookieParser()
+);
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', '*');
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 app.use('/', mainRouter);
+app.use('/uploads', express.static('uploads'));
 
 if (NODE_ENV === 'production') {
-  const privateKey = fs.readFileSync('./cert/client-key.pem');
-  const certificate = fs.readFileSync('./cert/client-cert.pem');
+  const privateKey = fs.readFileSync('../cert/client-key.pem', 'utf8');
+  const certificate = fs.readFileSync('../cert/client-cert.pem', 'utf8');
 
   const credentials = {
     key: privateKey,
     cert: certificate,
+    requestCert: false,
+    rejectUnauthorized: false,
   };
 
   const httpsServer = https.createServer(credentials, app);
@@ -47,12 +72,9 @@ if (NODE_ENV === 'production') {
   });
 }
 
-app.use('/uploads', express.static('uploads'));
-
-
 const shutdown = async () => {
-    console.log('Gracefully shutting down');
-    await closeMongoDbConnection();
+  console.log('Gracefully shutting down');
+  await closeMongoDbConnection();
 };
 
 // process.on('SIGTERM', shutdown);
