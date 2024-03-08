@@ -17,7 +17,8 @@ interface CommentListProps {
     isCommentThread?: boolean;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setComments, isCommentThread = false }) => {
+const CommentList: React.FC<CommentListProps> = ({ comments, isMoviePage, setComments,imagePreview,
+                                                     setImagePreview, isCommentThread = false }) => {
   const [isAddCommentModalVisible, setIsAddCommentModalVisible] = useState(false);
   const [activeThreadCommentId, setActiveThreadCommentId] = useState<string | null>(null);
 
