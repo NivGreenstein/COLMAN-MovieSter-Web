@@ -28,6 +28,8 @@ export const updateComment: CommentUpdate = async (req, res) => {
 
         if (image) {
             comment.imagePath = image.path;
+        } else {
+            comment.imagePath = undefined;
         }
 
         comment.rating = parseInt(String(comment.rating), 10)
@@ -99,16 +101,16 @@ export const getCommentsByUserId: CommentGetByUserId = async (req, res) => {
 };
 
 export const getCommentsThread: CommentGetThread = async (req, res) => {
-  try {
-    const mainCommentId = req.params.mainCommentId;
-    const result = await service.getCommentsThread(mainCommentId);
-    return res.json(result);
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
+    try {
+        const mainCommentId = req.params.mainCommentId;
+        const result = await service.getCommentsThread(mainCommentId);
+        return res.json(result);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            return res.status(httpCode.BAD_REQUEST).json({message: err.message});
+        }
+        return res.status(httpCode.INTERNAL_SERVER_ERROR).json({message: 'Internal server error'});
     }
-    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
-  }
 };
 
 export const createComment: CommentCreate = async (req, res) => {
