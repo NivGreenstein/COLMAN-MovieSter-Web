@@ -15,7 +15,7 @@ export const CommentSchema = z
             .optional(),
         description: z.string(),
         rating: z.number().min(0).max(10),
-        imagePath: z.string()
+        imagePath: z.string().optional()
     })
     .strict();
 

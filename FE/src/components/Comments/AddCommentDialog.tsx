@@ -1,6 +1,6 @@
-import React from 'react';
-import {Modal, Rate, Input, Form, Button, message, Upload} from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React, {useEffect, useState} from 'react';
+import {Modal, Rate, Input, Form, Button, message, Upload, Image} from 'antd';
+import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
 
 
 interface AddCommentDialogProps {
@@ -13,6 +13,10 @@ interface AddCommentDialogProps {
     setRating: (value: number) => void;
     description: string;
     setDescription: (value: string) => void;
+    image: string | undefined,
+    setImage: (value: string) => void,
+    setImagePreview:  (value: string) => void,
+    imagePreview: string | undefined,
 }
 
 const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
@@ -27,8 +31,14 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
                                                                setRating,
                                                                image,
                                                                setImage,
+                                                               setImagePreview,
+                                                               imagePreview
                                                            }) => {
 
+
+    // useEffect(() => {
+    //     setImagePreview(image)
+    // })
     const handleOk = () => {
         handleSubmit();
         setIsModalVisible(false);
@@ -54,8 +64,15 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
     const handleUploadChange = ({fileList}) => {
         const lastFile = fileList.slice(-1)[0];
         if (lastFile && lastFile.originFileObj) {
-            setImage(lastFile.originFileObj); // Set the selected image file object
+            setImage(lastFile.originFileObj);
+            const setPreview = URL.createObjectURL(lastFile.originFileObj);
+            setImagePreview(setPreview);
         }
+    };
+
+    const handleRemoveImage = () => {
+        setImage('');
+        setImagePreview('')
     };
 
     return (
@@ -74,16 +91,36 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
                         <Input.TextArea value={description} onChange={(e) => setDescription(e.target.value)}/>
                     </Form.Item>
                     <Form.Item label="Image Upload">
-                        <Upload
-                            name="avatar"
-                            listType="picture-card"
-                            className="avatar-uploader"
-                            showUploadList={false}
-                            beforeUpload={beforeUpload}
-                            onChange={handleUploadChange}
-                        >
-                            {image ? <img src={URL.createObjectURL(image)} alt="avatar" style={{ width: '100%' }} /> : <PlusOutlined />}
-                        </Upload>
+                        {imagePreview ? (
+                            <div className="image-preview">
+                                <Image
+                                    src={`${imagePreview}`}
+                                    alt="Comment image"
+                                    style={{width: '100%'}}
+                                />
+                                <Button
+                                    icon={<DeleteOutlined/>}
+                                    onClick={handleRemoveImage}
+                                    style={{marginTop: '10px'}}
+                                    disabled={!imagePreview}
+                                >
+                                    Remove
+                                </Button>
+                            </div>
+                        ) : (
+                            <Upload
+                                name="image"
+                                listType="picture-card"
+                                className="image-uploader"
+                                showUploadList={false}
+                                beforeUpload={beforeUpload}
+                                onChange={handleUploadChange}
+                            >
+                                <div>
+                                    <PlusOutlined/>
+                                </div>
+                            </Upload>
+                        )}
                     </Form.Item>
                 </Form>
             </Modal>

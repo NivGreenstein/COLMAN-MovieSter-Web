@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Image, Tooltip, List, Rate, Avatar, Button, ConfigProvider, Typography} from 'antd';
+import {Image, Tooltip, List, Rate, Avatar, Button, Typography} from 'antd';
 import {EditOutlined, DeleteOutlined} from '@ant-design/icons';
 import moment from 'moment';
 import {Comment, CommentFullSchema} from '../../types/IComment';
@@ -11,14 +11,24 @@ interface CommentListProps {
     comments: Comment[];
     setComments: (comments: Comment[]) => void;
     isMoviePage: boolean;
+    setImagePreview: (value: string) => void;
+    imagePreview: string | undefined;
 }
 
-const CommentList: React.FC<CommentListProps> = ({comments, isMoviePage, setComments}) => {
+const CommentList: React.FC<CommentListProps> = ({
+                                                     comments,
+                                                     isMoviePage,
+                                                     setComments,
+                                                     imagePreview,
+                                                     setImagePreview
+                                                 }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [commentIdToEdit, setCommentIdToEdit] = useState('');
     const [description, setDescription] = useState('');
     const [rating, setRating] = useState(0);
+    const [image, setImage] = useState('');
     const {loggedUser} = useSession();
+
 
     const handleDeleteComment = async (commentId: string) => {
         const response = await deleteComment(commentId);
@@ -36,6 +46,9 @@ const CommentList: React.FC<CommentListProps> = ({comments, isMoviePage, setComm
         setDescription(comment.description);
         setRating(comment.rating);
         setIsModalVisible(true);
+        if (comment.imagePath) {
+            setImagePreview(`${import.meta.env.VITE_API_URI}/${comment.imagePath}`)
+        }
     };
 
     const handleEdit = async () => {
@@ -45,19 +58,25 @@ const CommentList: React.FC<CommentListProps> = ({comments, isMoviePage, setComm
             _id: commentIdToEdit,
             description: description,
             rating: rating,
+            imagePath: imagePreview
         };
         CommentFullSchema.partial().parse(commentToUpdate);
-        const response = await patchComment(commentToUpdate);
-        if (response?.ok) {
+        try {
+
+            const response = await patchComment(commentToUpdate, image);
+
             console.log('Comment updated', response);
             const updatedComments = comments.map((comment) =>
-                comment._id === commentIdToEdit ? {...comment, ...commentToUpdate} : comment,
+                comment._id === commentIdToEdit ? {
+                    ...comment, ...commentToUpdate,
+                    imagePath: response.imagePath
+                } : comment,
             );
             setComments(updatedComments);
             setIsModalVisible(false);
             setCommentIdToEdit('');
-        } else {
-            console.error('Error updating comment', response);
+        } catch (error) {
+            console.error('Error updating comment', error);
         }
     };
 
@@ -94,7 +113,7 @@ const CommentList: React.FC<CommentListProps> = ({comments, isMoviePage, setComm
                                                 width={50}
                                                 src={`${import.meta.env.VITE_API_URI}/${comment.imagePath}`}
                                                 alt="Comment image"
-                                                style={{display: 'block', marginTop: '10px'}} // Add margin as needed
+                                                style={{display: 'block', marginTop: '10px'}}
                                             />
                                         )}
                                     </>
@@ -117,6 +136,10 @@ const CommentList: React.FC<CommentListProps> = ({comments, isMoviePage, setComm
                 description={description}
                 setDescription={setDescription}
                 isEditMode={true}
+                image={image}
+                setImage={setImage}
+                setImagePreview={setImagePreview}
+                imagePreview={imagePreview}
                 restartStates={() => {
                     setDescription('');
                     setRating(0);

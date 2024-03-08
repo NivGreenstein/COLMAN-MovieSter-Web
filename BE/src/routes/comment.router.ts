@@ -12,7 +12,7 @@ import {upload} from "../middlewares/imageUploader.middleware";
 const router = Router();
 
 router.post('/', upload.single('image'), createComment);
-router.patch('/', updateComment);
+router.patch('/', upload.single('image'), updateComment);
 router.get('/:id', getCommentById);
 router.delete('/:id', deleteComment);
 router.get('/movie/:movieId', getCommentsByMovieId);
