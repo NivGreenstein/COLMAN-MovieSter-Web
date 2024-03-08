@@ -1,90 +1,150 @@
-import React, { useState } from 'react';
-import { Avatar, Button, Form, Input, Layout, Upload, message } from 'antd';
-import {UserOutlined, SaveOutlined, CloseOutlined, UploadOutlined, EditOutlined} from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Avatar, Button, Form, Input, Layout, Upload, message, UploadFile} from 'antd';
+import {UserOutlined, SaveOutlined, CloseOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
+import {useNavigate} from 'react-router-dom';
+import {useSession} from "../../../context/SessionContext";
+import {updateUser} from "../../../services/user.service";
+import {IUser} from "../../../types/IUser";
+import './editProfile.css';
+import {UploadChangeParam} from "antd/lib/upload";
+import {RcFile} from "antd/es/upload/interface";
 
-const { Content } = Layout;
+const {Content} = Layout;
 
 const EditUserProfile: React.FC = () => {
-    const navigate = useNavigate();
-    const [form] = Form.useForm();
+        const navigate = useNavigate();
+        const [form] = Form.useForm();
+        const {loggedUser, setLoggedUser} = useSession();
+        const [username, setUsername] = useState<string>('');
+        const [profileImage, setProfileImage] = useState<string>('');
 
-    const [username, setUsername] = useState<string>('');
-    // Assuming you have a method to get the current user's image
-    const [profileImage, setProfileImage] = useState<string>('');
+        useEffect(() => {
+            if (loggedUser) {
+                setUsername(loggedUser.username);
+                setProfileImage(loggedUser.profilePictureUrl);
+                form.setFieldsValue({
+                    username: loggedUser.username,
+                    profileImage: loggedUser.profilePictureUrl,
+                });
+            }
+        }, [loggedUser, form]);
 
-    const handleSave = () => {
-        message.success('Profile updated successfully!');
-        // Here you will include the logic to save the updated user profile
-    };
 
-    const handleCancel = () => {
-        navigate(-1); // Go back to the previous page
-    };
+        const handleSave = async () => {
+            try {
+                const formData = new FormData();
+                if (loggedUser) {
+                    formData.append('_id', loggedUser._id);
+                    formData.append('email', loggedUser.email);
 
-    const handleImageChange = (info: any) => {
-        if (info.file.status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully`);
-            // Here you will handle the logic to update the state with the new image
-            // This is a placeholder for the new image URL
-            setProfileImage(URL.createObjectURL(info.file.originFileObj));
-        } else if (info.file.status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
+                    formData.append('username', username);
+
+                    if (profileImage) {
+                        formData.append('profilePictureUrl', profileImage);
+                    }
+
+
+                    await updateUser(formData);
+                    if (loggedUser) {
+                        const updatedUser: IUser = {
+                            ...loggedUser,
+                            username: username,
+                            profilePictureUrl: profileImage
+                        };
+                        setLoggedUser(updatedUser);
+                    }
+                    message.success('Profile updated successfully!');
+                    navigate('/profile');
+                }
+            } catch
+                (error) {
+                message.error('Failed to update profile.');
+            }
         }
-    };
+        const handleCancel = () => {
+            navigate(-1);
+        };
 
-    const uploadButton = (
-        <div>
-            <UploadOutlined style={{zIndex: 1000}} />
-            <div style={{ marginTop: 8 }}>Upload</div>
-        </div>
-    );
+        const handleImageChange = ({file}: UploadChangeParam<UploadFile>) => {
+            if ('originFileObj' in file && file.originFileObj) {
+                setProfileImage(URL.createObjectURL(file.originFileObj as Blob));
+            } else {
+                setProfileImage(URL.createObjectURL(file as unknown as Blob));
+            }
+        };
 
-    return (
-        <Layout>
-            <Content style={{ padding: '50px',minHeight: '100vh', minWidth: '100vw' }}>
-                <Form layout="vertical" form={form} onFinish={handleSave}>
-                    <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                        <Upload
-                            name="avatar"
-                            listType="picture-card"
-                            className="avatar-uploader"
-                            showUploadList={false}
-                            beforeUpload={() => false}
-                            onChange={handleImageChange}
+        const beforeUpload = (file: RcFile) => {
+            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+            if (!isJpgOrPng) {
+                message.error('You can only upload JPG/PNG file!');
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+                message.error('Image must smaller than 2MB!');
+            }
+            return isJpgOrPng && isLt2M ? false : Upload.LIST_IGNORE;
+        };
+
+        const uploadedImage = (
+            <div className="image-preview">
+                <Avatar src={profileImage} size={120}/>
+                <div className="edit-icon-overlay">
+                    <EditOutlined/>
+                </div>
+            </div>
+        );
+
+// Upload button displayed when there's no image
+        const uploadButton = (
+            <div>
+                <PlusOutlined/>
+                <div>Upload</div>
+            </div>
+        );
+
+        return (
+            <Layout>
+                <Content style={{padding: '50px', minHeight: '100vh', minWidth: '100vw'}}>
+                    <Form layout="vertical" form={form} onFinish={handleSave}>
+                        <div style={{textAlign: 'center', marginBottom: '24px'}}>
+                            <Upload
+                                name="profileImage"
+                                listType="picture-card"
+                                className="avatar-uploader"
+                                showUploadList={false}
+                                beforeUpload={beforeUpload}
+                                onChange={handleImageChange}
+                            >
+                                {form.getFieldValue('profileImage') ? uploadedImage : uploadButton}
+                            </Upload>
+                        </div>
+
+                        <Form.Item
+                            name="username"
+                            label="Username"
+                            rules={[{required: true, message: 'Please input your username!'}]}
                         >
-                            {profileImage ? <Avatar src={profileImage} size={120} /> : uploadButton}
-                        </Upload>
-                        <Button type="primary" icon={<EditOutlined />} style={{ marginTop: '10px' }}>
-                            Edit Image
-                        </Button>
-                    </div>
+                            <Input
+                                name="username"
+                                prefix={<UserOutlined/>}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Username"
+                            />
+                        </Form.Item>
 
-                    <Form.Item
-                        name="username"
-                        label="Username"
-                        rules={[{ required: true, message: 'Please input your username!' }]}
-                    >
-                        <Input
-                            prefix={<UserOutlined />}
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Username"
-                        />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" icon={<SaveOutlined />} style={{ marginRight: '8px' }}>
-                            Save
-                        </Button>
-                        <Button onClick={handleCancel} icon={<CloseOutlined />}>
-                            Cancel
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Content>
-        </Layout>
-    );
-};
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" icon={<SaveOutlined/>} style={{marginRight: '8px'}}>
+                                Save
+                            </Button>
+                            <Button onClick={handleCancel} icon={<CloseOutlined/>}>
+                                Cancel
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </Content>
+            </Layout>
+        );
+    }
+;
 
 export default EditUserProfile;
