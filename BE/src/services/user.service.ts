@@ -98,12 +98,11 @@ export const googleLogin = async (email: string, name: string, profilePictureUrl
     if (!user) {
       throw new Error('Could not create user');
     }
-
-    const accessToken: string = generateAccessToken(user);
-    const refreshToken: string = await generateRefreshToken(user);
-
-    return { accessToken, refreshToken };
   }
+  const accessToken: string = generateAccessToken(user);
+  const refreshToken: string = await generateRefreshToken(user);
+
+  return { accessToken, refreshToken };
 };
 
 export const deleteUser = async (id: string) => {
