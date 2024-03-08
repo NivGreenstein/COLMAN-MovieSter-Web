@@ -1,3 +1,5 @@
+const CERT_FOLDER = '/home/st111/COLMAN-MovieSter-Web/cert';
+
 module.exports = {
 	apps: [
 		{
@@ -14,7 +16,7 @@ module.exports = {
 				GOOGLE_CLIENT_ID:
 					'286438240561-re2j2jr85ba3m8jlv585fooa3kpun6u2.apps.googleusercontent.com',
 				GOOGLE_CLIENT_SECRET: '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',
-				CERT_FOLDER: '/home/st111/COLMAN-MovieSter-Web/cert/',
+				CERT_FOLDER,
 			},
 		},
 		{
@@ -22,8 +24,8 @@ module.exports = {
 			script: './FE-Serve/dist/index.js',
 			env_production: {
 				NODE_ENV: 'production',
-				PORT: 4000,
-				CERT_FOLDER: '/home/st111/COLMAN-MovieSter-Web/cert/',
+				PORT: 443,
+				CERT_FOLDER,
 			},
 		},
 	],
