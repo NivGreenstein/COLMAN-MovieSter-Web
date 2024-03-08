@@ -66,14 +66,9 @@ export const googleLogin: UserGoogleLogin = async (req, res) => {
       throw new Error('GOOGLE_CLIENT_ID is not defined');
     }
 
-    const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, 'postmessage');
-    const { tokens } = await googleClient.getToken(req.body.code);
-
-    if (!tokens.id_token) {
-      throw new Error('No id_token in response');
-    }
+    const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     const ticket = await googleClient.verifyIdToken({
-      idToken: tokens.id_token,
+      idToken: req.body.code,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
@@ -81,6 +76,7 @@ export const googleLogin: UserGoogleLogin = async (req, res) => {
     if (!payload || !payload.email || !payload.name || !payload.picture) {
       throw new Error('No payload in response or missing fields in payload');
     }
+
     const result = await authService.googleLogin(payload.email, payload.name, payload.picture);
 
     if (!result) {

@@ -10,12 +10,11 @@ const MovieListPage: React.FC = () => {
   const [movies, setMovies] = useState<IMovie[]>([]);
   const [page, setPage] = useState(1);
   const observer = useRef<IntersectionObserver | null>(null);
-  const initialRender = useRef(true);
 
   const lastMovieElementRef = useCallback((node: HTMLDivElement | null) => {
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !initialRender.current) {
+      if (entries[0].isIntersecting) {
         setPage((prevPage) => prevPage + 1);
       }
     });
@@ -23,11 +22,7 @@ const MovieListPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (initialRender.current) {
-      initialRender.current = false;
-    } else {
-      getNowPlayingMovies(page).then((data) => setMovies((prevMovies) => [...prevMovies, ...data]));
-    }
+    getNowPlayingMovies(page).then((data) => setMovies((prevMovies) => [...prevMovies, ...data]));
   }, [page]);
 
   return (
