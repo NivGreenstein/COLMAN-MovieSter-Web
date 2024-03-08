@@ -5,7 +5,7 @@ module.exports = {
 			script: './BE/dist/index.js',
 			env_production: {
 				NODE_ENV: 'production',
-				PORT: '4000',
+				PORT: 4000,
 				MONGO_DB_URL:
 					'mongodb://server:123123123@localhost:21771/moviester',
 				DB_NAME: 'moviester',
@@ -18,9 +18,10 @@ module.exports = {
 		},
 		{
 			name: 'FE',
-			script: './FE-Serve/index.js',
+			script: './FE-Serve/dist/index.js',
 			env_production: {
-				VITE_API_URI: 'https://193.106.55.220:4000',
+				NODE_ENV: 'production',
+				PORT: 4000,
 			},
 		},
 	],
