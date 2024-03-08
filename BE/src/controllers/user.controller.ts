@@ -17,22 +17,26 @@ export type UserGetByEmail = RequestHandler<{ email: string }, WithId<UserMongoD
 
 export const updateUser: UserUpdate = async (req, res): Promise<void> => {
   try {
-    const user = req.body as PartialUserUpdate;
+    const userUpdates = req.body;
+
+    const updateData = {
+      ...userUpdates,
+    };
 
     userSchema
       // eslint-disable-next-line @typescript-eslint/naming-convention
       .extend({ _id: z.string().regex(/^[0-9a-fA-F]{24}$/) })
       .strict()
       .partial()
-      .parse(user);
+      .parse(updateData);
 
     //@ts-ignore
-    if (user._id !== req.userId) {
+    if (updateData._id !== req.userId) {
       res.status(httpCode.FORBIDDEN).json({ message: 'Forbidden' });
       return;
     }
 
-    const result = await service.updateUser(user);
+    const result = await service.updateUser(updateData);
 
     if (result.matchedCount === 0) {
       res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });

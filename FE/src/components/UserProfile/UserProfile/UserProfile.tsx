@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Avatar, Button, Card, Col, Row, Statistic, Layout, Typography } from 'antd';
+import {Avatar, Button, Card, Col, Row, Statistic, Layout} from 'antd';
 import {EditOutlined} from '@ant-design/icons';
 import {useNavigate, useParams} from 'react-router-dom';
 import CommentList from '../../Comments/CommentsList';
@@ -11,8 +11,6 @@ import {getCommentsByUserId} from '../../../services/comments.service';
 import Title from "antd/lib/typography/Title";
 
 const {Content} = Layout;
-const { Text } = Typography;
-
 
 interface UserProfileProps {
 }
@@ -65,12 +63,12 @@ const UserProfile: React.FC<UserProfileProps> = () => {
                         <CommentList comments={comments} isMoviePage={false} setComments={setComments}
                                      imagePreview={imagePreview} setImagePreview={setImagePreview}/>
                     </Col>
-                    <Col span={4} style={{ textAlign: 'center' }}>
-                        <Avatar size={120} shape="circle" src={user?.profilePictureUrl} />
-                        <Title level={2} style={{ marginTop: 16 }}>{user.username}</Title>
-                        <Row justify="center" style={{ padding: '16px 0' }}>
-                            <Card title="Statistics" style={{ width: 300 }}>
-                                <Statistic title="Movies Rated" value={comments.length} />
+                    <Col span={4} style={{textAlign: 'center'}}>
+                        <Avatar size={120} shape="circle" src={user?.profilePictureUrl}/>
+                        <Title level={2} style={{marginTop: 16}}>{user.username}</Title>
+                        <Row justify="center" style={{padding: '16px 0'}}>
+                            <Card title="Statistics" style={{width: 300}}>
+                                <Statistic title="Movies Rated" value={comments.length}/>
                                 <Statistic
                                     title="Rating Average"
                                     value={
