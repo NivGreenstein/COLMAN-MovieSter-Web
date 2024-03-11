@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Layout, Avatar, Button, AutoComplete, Image } from 'antd';
+import { Layout, Avatar, Button, Image } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../services/auth.service';
 import { useSession } from '../../context/SessionContext';
 import logo from '../../assets/logo.png';
-import useMovieSuggestions from './MovieSuggestions/MovieSuggestions';
+import MovieSuggestions from './MovieSuggestions/MovieSuggestions';
 
 const { Header } = Layout;
 
@@ -13,7 +13,6 @@ const AppHeader: React.FC<{ profileImageUrl?: string }> = ({ profileImageUrl }) 
   const navigate = useNavigate();
   const { setIsLoggedIn, setLoggedUser } = useSession();
   const [searchValue, setSearchValue] = useState('');
-  const suggestions = useMovieSuggestions(searchValue);
 
   const handleLogout = async () => {
     try {
@@ -30,10 +29,6 @@ const AppHeader: React.FC<{ profileImageUrl?: string }> = ({ profileImageUrl }) 
     navigate('/profile');
   };
 
-  const onSelect = (_: unknown, option: { key: string }) => {
-    navigate(`/movie/${option.key}`);
-  };
-
   const onSearch = (searchText: string) => {
     setSearchValue(searchText);
   };
@@ -45,14 +40,15 @@ const AppHeader: React.FC<{ profileImageUrl?: string }> = ({ profileImageUrl }) 
   return (
     <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 50px' }}>
       <Image src={logo} preview={false} style={{ cursor: 'pointer' }} height={'50px'} onClick={goToNowPlayingMovies} />
-      <AutoComplete
+      {/* <AutoComplete
         options={suggestions}
         size={'large'}
         onSelect={onSelect}
         style={{ borderRadius: '25px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: '600px' }}
         onSearch={onSearch}
         placeholder="Search movies"
-      />
+      /> */}
+      <MovieSuggestions searchValue={searchValue} onSearch={onSearch} />
       <div>
         <Avatar
           style={{ cursor: 'pointer' }}
