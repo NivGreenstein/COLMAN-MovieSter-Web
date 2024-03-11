@@ -157,6 +157,7 @@ const CommentList: React.FC<CommentListProps> = ({
                       setImage={setImage}
                       setImagePreview={setImagePreview}
                       imagePreview={imagePreview}
+                      image={image}
                     />
                   </div>
                 )}
