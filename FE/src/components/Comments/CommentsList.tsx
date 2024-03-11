@@ -69,7 +69,7 @@ const CommentList: React.FC<CommentListProps> = ({
     };
     CommentFullSchema.partial().parse(commentToUpdate);
     try {
-      const response = await patchComment(commentToUpdate, image ? image : undefined);
+      const response = await patchComment(commentToUpdate, image ? image as File : undefined);
 
       console.log('Comment updated', response);
       const updatedComments = comments.map((comment) =>
@@ -157,6 +157,7 @@ const CommentList: React.FC<CommentListProps> = ({
                       setImage={setImage}
                       setImagePreview={setImagePreview}
                       imagePreview={imagePreview}
+                      image={image}
                     />
                   </div>
                 )}

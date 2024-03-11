@@ -13,6 +13,7 @@ interface CommentThreadModalProps {
     setImage: (value: (RcFile | null)) => void,
     setImagePreview: (value: string) => void,
     imagePreview: string | undefined,
+    image?: RcFile | null
 }
 
 export const CommentThreadModal: React.FC<CommentThreadModalProps> = ({
@@ -21,7 +22,8 @@ export const CommentThreadModal: React.FC<CommentThreadModalProps> = ({
                                                                           setIsModalVisible,
                                                                           imagePreview,
                                                                           setImage,
-                                                                          setImagePreview
+                                                                          setImagePreview,
+                                                                          image = undefined
                                                                       }) => {
     const [comments, setComments] = useState<Comment[]>([]);
 
@@ -60,6 +62,7 @@ export const CommentThreadModal: React.FC<CommentThreadModalProps> = ({
                     imagePreview={imagePreview}
                     setImagePreview={setImagePreview}
                     setImage={setImage}
+                    image={image}
                 />
                 <CommentList comments={comments} isMoviePage={true} isCommentThread={true} setComments={setComments}
                              setImagePreview={setImagePreview} imagePreview={imagePreview}/>

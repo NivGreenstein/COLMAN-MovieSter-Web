@@ -39,10 +39,12 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
     const handleOk = () => {
         handleSubmit();
         setIsModalVisible(false);
+        setImagePreview('');
     };
 
     const handleCancel = () => {
         setIsModalVisible(false);
+        setImagePreview('');
         restartStates();
     };
 
