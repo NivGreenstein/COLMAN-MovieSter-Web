@@ -112,5 +112,13 @@ export const updateComment = async (comment: Partial<WithId<Comment>>, userId: s
 
 export const deleteComment = async (commentId: string, userId: string): Promise<DeleteResult> => {
   const collection = await getCollection();
-  return await collection.deleteOne({ _id: new ObjectId(commentId), userId: new ObjectId(userId) });
+  const res = await collection.deleteMany({
+    $or: [
+      { _id: new ObjectId(commentId), userId: new ObjectId(userId) },
+      {
+        mainCommentId: new ObjectId(commentId),
+      },
+    ],
+  });
+  return res;
 };
