@@ -2,8 +2,10 @@ import {Request, Response, NextFunction} from 'express';
 import httpStatus from 'http-status-codes';
 import * as authService from '../src/services/auth.service';
 import * as userService from '../src/services/user.service';
-import {login, register} from '../src/controllers/authentication.controller';
+import {login, logout, register} from '../src/controllers/authentication.controller';
 import {UserRegister} from "../src/models/user.model";
+import {ObjectId} from "mongodb";
+import httpCode from "http-status-codes";
 
 jest.mock('../src/services/auth.service', () => ({
     login: jest.fn(),
@@ -191,11 +193,10 @@ describe('AuthController', () => {
 
             const next: NextFunction = jest.fn();
 
-            // Assuming userService.createUser is used within your register function
             jest.spyOn(userService, 'createUser').mockResolvedValue({
-                _id: '123456789',
+                _id: new ObjectId('123456789abc123456789abc'),
                 ...reqBody,
-            });
+            } as any);
 
             await register(req, res, next);
 
@@ -244,8 +245,58 @@ describe('AuthController', () => {
             await register(req, res, next);
 
             expect(userService.createUser).toHaveBeenCalledWith(expect.any(Object));
-            expect(res.status).toHaveBeenCalledWith(httpStatus.CONFLICT);
+            expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
         });
     });
 
+    describe('logout function', () => {
+        it('should clear cookies and return OK status on successful logout', async () => {
+            // Mock request and response
+            const req: Partial<Request> = {
+                cookies: {
+                    'refresh-token': 'some-refresh-token',
+                },
+            };
+            const res: Partial<Response> = {
+                clearCookie: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+                send: jest.fn(),
+            };
+            const next: NextFunction = jest.fn();
+
+            jest.spyOn(authService, 'logout').mockImplementation(() => true);
+
+            await logout(req as Request<undefined, undefined, undefined, undefined>, res as Response, next);
+
+            // Assertions
+            expect(authService.logout).toHaveBeenCalledWith('some-refresh-token');
+            expect(res.clearCookie).toHaveBeenCalledWith('access-token');
+            expect(res.clearCookie).toHaveBeenCalledWith('refresh-token');
+            expect(res.status).toHaveBeenCalledWith(httpCode.OK);
+            expect(res.send).toHaveBeenCalled();
+        });
+
+        it('should return INTERNAL_SERVER_ERROR status on failed logout', async () => {
+            // Mock request and response for failed logout scenario
+            const req: Partial<Request> = {
+                cookies: {
+                    'refresh-token': 'invalid-refresh-token',
+                },
+            };
+            const res: Partial<Response> = {
+                clearCookie: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn(),
+            };
+            const next: NextFunction = jest.fn();
+
+            jest.spyOn(authService, 'logout').mockImplementation(() => false);
+
+            await logout(req as Request<undefined, undefined, undefined, undefined>, res as Response, next);
+
+            expect(authService.logout).toHaveBeenCalledWith('invalid-refresh-token');
+            expect(res.status).toHaveBeenCalledWith(httpCode.INTERNAL_SERVER_ERROR);
+            expect(res.json).toHaveBeenCalledWith({message: 'Internal server error'});
+        });
+    });
 });
