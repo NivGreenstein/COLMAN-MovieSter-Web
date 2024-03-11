@@ -11,6 +11,7 @@ interface AddCommentProps {
     movieId: number;
     mainCommentId?: string | undefined;
     fetchComments: () => void;
+    image?: RcFile | null;
     setImage: (value: RcFile | null) => void,
     setImagePreview: (value: string) => void,
     imagePreview: string | undefined,
@@ -23,7 +24,8 @@ export const AddComment: React.FC<AddCommentProps> = ({
                                                           mainCommentId = undefined,
                                                           setImagePreview,
                                                           imagePreview,
-                                                          setImage
+                                                          setImage,
+                                                          image = undefined
                                                       }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [description, setDescription] = useState('');
@@ -51,12 +53,11 @@ export const AddComment: React.FC<AddCommentProps> = ({
         };
         CommentSchema.parse(commentToCreate);
 
-        const createdComment = await createComment(commentToCreate);
+        const createdComment = await createComment(commentToCreate, image ? image : undefined);
 
         if (createdComment) {
             console.log('Comment created', createdComment);
             fetchComments();
-            // getCommentsByMovieId(`${movieId}`).then((data) => setComments(data ?? []));
             restartAddCommentStates();
             setIsModalVisible(false);
         }
