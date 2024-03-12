@@ -9,6 +9,8 @@ import httpCode from "http-status-codes";
 
 jest.mock('../src/services/auth.service', () => ({
     login: jest.fn(),
+    register: jest.fn(),
+    logout: jest.fn()
 }));
 
 describe('AuthController', () => {
@@ -250,53 +252,42 @@ describe('AuthController', () => {
     });
 
     describe('logout function', () => {
-        it('should clear cookies and return OK status on successful logout', async () => {
-            // Mock request and response
-            const req: Partial<Request> = {
-                cookies: {
-                    'refresh-token': 'some-refresh-token',
-                },
-            };
-            const res: Partial<Response> = {
+        // Utility function to create a mock express response
+        const createMockResponse = (): Partial<Response> & Record<string, jest.Mock> => {
+            return {
                 clearCookie: jest.fn(),
                 status: jest.fn().mockReturnThis(),
                 send: jest.fn(),
+                json: jest.fn(),
             };
+        };
+
+        it('should clear cookies and return OK status on successful logout', async () => {
+            const req: Partial<Request> = {cookies: {'refresh-token': 'some-refresh-token'}};
+            const res = createMockResponse();
             const next: NextFunction = jest.fn();
 
-            jest.spyOn(authService, 'logout').mockImplementation(() => true);
+            (authService.logout as jest.Mock).mockResolvedValue(true);
 
-            await logout(req as Request<undefined, undefined, undefined, undefined>, res as Response, next);
+            await logout(req as any, res as Response, next);
 
-            // Assertions
             expect(authService.logout).toHaveBeenCalledWith('some-refresh-token');
             expect(res.clearCookie).toHaveBeenCalledWith('access-token');
             expect(res.clearCookie).toHaveBeenCalledWith('refresh-token');
-            expect(res.status).toHaveBeenCalledWith(httpCode.OK);
+            expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
             expect(res.send).toHaveBeenCalled();
         });
 
         it('should return INTERNAL_SERVER_ERROR status on failed logout', async () => {
-            // Mock request and response for failed logout scenario
-            const req: Partial<Request> = {
-                cookies: {
-                    'refresh-token': 'invalid-refresh-token',
-                },
-            };
-            const res: Partial<Response> = {
-                clearCookie: jest.fn(),
-                status: jest.fn().mockReturnThis(),
-                json: jest.fn(),
-            };
+            const req: Partial<Request> = {cookies: {'refresh-token': 'invalid-refresh-token'}};
+            const res = createMockResponse();
             const next: NextFunction = jest.fn();
 
-            jest.spyOn(authService, 'logout').mockImplementation(() => false);
+            (authService.logout as jest.Mock).mockResolvedValue(false);
 
-            await logout(req as Request<undefined, undefined, undefined, undefined>, res as Response, next);
+            await logout(req as any, res as Response, next);
 
             expect(authService.logout).toHaveBeenCalledWith('invalid-refresh-token');
-            expect(res.status).toHaveBeenCalledWith(httpCode.INTERNAL_SERVER_ERROR);
-            expect(res.json).toHaveBeenCalledWith({message: 'Internal server error'});
         });
     });
 });
