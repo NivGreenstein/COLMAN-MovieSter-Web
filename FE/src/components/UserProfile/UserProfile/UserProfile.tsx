@@ -29,7 +29,9 @@ const UserProfile: React.FC<UserProfileProps> = () => {
         if (id) {
             getUserById(id).then((userResponse) => setUser(userResponse));
         } else {
-            setUser(loggedUser);
+            if (loggedUser?._id) {
+                getUserById(loggedUser._id).then((userResponse) => setUser(userResponse));
+            }
         }
         if (!id && !loggedUser) throw new Error('No user found');
 
@@ -64,7 +66,8 @@ const UserProfile: React.FC<UserProfileProps> = () => {
                                      imagePreview={imagePreview} setImagePreview={setImagePreview}/>
                     </Col>
                     <Col span={4} style={{textAlign: 'center'}}>
-                        <Avatar size={120} shape="circle" src={user?.profilePictureUrl}/>
+                        <Avatar size={120} shape="circle"
+                                src={`${import.meta.env.VITE_API_URI}/${user?.profilePictureUrl}`}/>
                         <Title level={2} style={{marginTop: 16}}>{user.username}</Title>
                         <Row justify="center" style={{padding: '16px 0'}}>
                             <Card title="Statistics" style={{width: 300}}>

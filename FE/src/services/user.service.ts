@@ -10,7 +10,10 @@ const getUserById = async (id: string): Promise<IUser> => {
 };
 
 
-const updateUser = async (userData: FormData): Promise<any> => {
+const updateUser = async (userData: FormData, image?: File): Promise<any> => {
+    if (image) {
+        userData.append('image', image, image.name);
+    }
     const response = await fetch(`${import.meta.env.VITE_API_URI}/users`, {
         method: 'PATCH',
         credentials: 'include',

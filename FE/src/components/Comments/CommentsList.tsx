@@ -71,120 +71,124 @@ const CommentList: React.FC<CommentListProps> = ({
     try {
       const response = await patchComment(commentToUpdate, image ? (image as File) : undefined);
 
-      console.log('Comment updated', response);
-      const updatedComments = comments.map((comment) =>
-        comment._id === commentIdToEdit
-          ? {
-              ...comment,
-              ...commentToUpdate,
-              imagePath: response.imagePath,
-            }
-          : comment,
-      );
-      setComments(updatedComments);
-      setIsAddCommentModalVisible(false);
-      setCommentIdToEdit('');
-    } catch (error) {
-      console.error('Error updating comment', error);
-    }
-  };
-  return (
-    <>
-      <div style={{ maxHeight: '60vh', overflowY: 'scroll' }}>
-        <List
-          className="comment-list"
-          itemLayout="horizontal"
-          dataSource={comments}
-          renderItem={(comment) => (
-            <>
-              <List.Item
-                actions={
-                  comment.userId === loggedUser?._id
-                    ? [
-                        <Button icon={<EditOutlined />} onClick={() => handleEditButtonClick(comment._id)}>
-                          Edit
-                        </Button>,
-                        <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
-                          Delete
-                        </Button>,
-                      ]
-                    : []
-                }
-              >
-                <List.Item.Meta
-                  avatar={
-                    <Avatar
-                      onClick={() => {
-                        if (isMoviePage) {
-                          navigate(`/profile/${comment.user?._id}`);
-                        } else {
-                          navigate(`/movie/${comment.movieId}`);
-                        }
-                      }}
-                      style={{ cursor: 'pointer' }}
-                      shape="circle"
-                      src={comment.user?.profilePictureUrl ?? comment.movie?.posterUrl}
-                    />
-                  }
-                  title={isMoviePage ? comment.user?.username : comment.movie?.title}
-                  description={
-                    <>
-                      {!isCommentThread && <Rate disabled value={comment.rating} />}
-                      <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
-                        {comment.description}
-                      </Typography.Paragraph>
-                      {comment.imagePath && (
-                        <Image
-                          width={50}
-                          src={`${import.meta.env.VITE_API_URI}/${comment.imagePath}`}
-                          alt="Comment image"
-                          style={{ display: 'block', marginTop: '10px' }}
-                        />
-                      )}
-                    </>
-                  }
+            console.log('Comment updated', response);
+            const updatedComments = comments.map((comment) =>
+                comment._id === commentIdToEdit
+                    ? {
+                        ...comment,
+                        ...commentToUpdate,
+                        imagePath: response.imagePath,
+                    }
+                    : comment,
+            );
+            setComments(updatedComments);
+            setIsAddCommentModalVisible(false);
+            setCommentIdToEdit('');
+        } catch (error) {
+            console.error('Error updating comment', error);
+        }
+    };
+    return (
+        <>
+            <div style={{maxHeight: '60vh', overflowY: 'scroll'}}>
+                <List
+                    className="comment-list"
+                    itemLayout="horizontal"
+                    dataSource={comments}
+                    renderItem={(comment) => (
+                        <>
+                            <List.Item
+                                actions={
+                                    comment.userId === loggedUser?._id
+                                        ? [
+                                            <Button icon={<EditOutlined/>}
+                                                    onClick={() => handleEditButtonClick(comment._id)}>
+                                                Edit
+                                            </Button>,
+                                            <Button icon={<DeleteOutlined/>}
+                                                    onClick={() => handleDeleteComment(comment._id)}>
+                                                Delete
+                                            </Button>,
+                                        ]
+                                        : []
+                                }
+                            >
+                                <List.Item.Meta
+                                    avatar={
+                                        <Avatar
+                                            onClick={() => {
+                                                if (isMoviePage) {
+                                                    navigate(`/profile/${comment.user?._id}`);
+                                                } else {
+                                                    navigate(`/movie/${comment.movieId}`);
+                                                }
+                                            }}
+                                            style={{cursor: 'pointer'}}
+                                            shape="circle"
+                                            src={`${import.meta.env.VITE_API_URI}/${comment.user?.profilePictureUrl}` ?? comment.movie?.posterUrl}
+                                        />
+                                    }
+                                    title={isMoviePage ? comment.user?.username : comment.movie?.title}
+                                    description={
+                                        <>
+                                            { <Rate disabled value={comment.rating}/>}
+                                            <Typography.Paragraph
+                                                ellipsis={{rows: 2, expandable: true, symbol: 'more'}}>
+                                                {comment.description}
+                                            </Typography.Paragraph>
+                                            {comment.imagePath && (
+                                                <Image
+                                                    width={50}
+                                                    src={`${import.meta.env.VITE_API_URI}/${comment.imagePath}`}
+                                                    alt="Comment image"
+                                                    style={{display: 'block', marginTop: '10px'}}
+                                                />
+                                            )}
+                                        </>
+                                    }
+                                />
+                                <Tooltip title={moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
+                                    <span>{moment(comment.createdAt).fromNow()}</span>
+                                </Tooltip>
+                                {!isCommentThread && (
+                                    <div>
+                                        <Button onClick={() => setActiveThreadCommentId(comment._id)}>See
+                                            thread</Button>
+                                        <CommentThreadModal
+                                            isModalVisible={activeThreadCommentId === comment._id}
+                                            setIsModalVisible={() => setActiveThreadCommentId(null)}
+                                            comment={comment}
+                                            setImage={setImage}
+                                            setImagePreview={setImagePreview}
+                                            imagePreview={imagePreview}
+                                            image={image}
+                                        />
+                                    </div>
+                                )}
+                            </List.Item>
+                        </>
+                    )}
                 />
-                <Tooltip title={moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
-                  <span>{moment(comment.createdAt).fromNow()}</span>
-                </Tooltip>
-                {!isCommentThread && (
-                  <div>
-                    <Button onClick={() => setActiveThreadCommentId(comment._id)}>See thread</Button>
-                    <CommentThreadModal
-                      isModalVisible={activeThreadCommentId === comment._id}
-                      setIsModalVisible={() => setActiveThreadCommentId(null)}
-                      comment={comment}
-                      setImage={setImage}
-                      setImagePreview={setImagePreview}
-                      imagePreview={imagePreview}
-                      image={image}
-                    />
-                  </div>
-                )}
-              </List.Item>
-            </>
-          )}
-        />
-      </div>
-      <AddCommentDialog
-        isModalVisible={isAddCommentModalVisible}
-        setIsModalVisible={setIsAddCommentModalVisible}
-        handleSubmit={handleEdit}
-        rating={rating}
-        setRating={setRating}
-        description={description}
-        setDescription={setDescription}
-        isEditMode={true}
-        setImage={setImage}
-        setImagePreview={setImagePreview}
-        imagePreview={imagePreview}
-        restartStates={() => {
-          setDescription('');
-          setRating(0);
-        }}
-      />
-    </>
-  );
+            </div>
+            <AddCommentDialog
+                isModalVisible={isAddCommentModalVisible}
+                setIsModalVisible={setIsAddCommentModalVisible}
+                handleSubmit={handleEdit}
+                rating={rating}
+                setRating={setRating}
+                description={description}
+                setDescription={setDescription}
+                isEditMode={true}
+                setImage={setImage}
+                setImagePreview={setImagePreview}
+                imagePreview={imagePreview}
+                restartStates={() => {
+                    setDescription('');
+                    setRating(0);
+                }}
+            />
+        </>
+    );
 };
 
 export default CommentList;

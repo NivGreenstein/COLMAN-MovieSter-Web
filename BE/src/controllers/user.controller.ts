@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { ZodError, z } from 'zod';
+import {ZodError, z} from 'zod';
 import httpCode from 'http-status-codes';
-import { RequestHandler } from 'express';
-import { ObjectId, WithId } from 'mongodb';
-import { ErrorResponse } from '../Globals';
+import {RequestHandler} from 'express';
+import {ObjectId, WithId} from 'mongodb';
+import {ErrorResponse} from '../Globals';
 import * as service from '../services/user.service';
-import { User, UserMongoDB, UserRegister, userRegisterSchema, userSchema } from '../models/user.model';
+import {User, UserMongoDB, UserRegister, userRegisterSchema, userSchema} from '../models/user.model';
 import {UserUpdate} from "../types/userRequest.type";
 
 export type PartialUserUpdate = WithId<Partial<User>>;
@@ -16,113 +16,117 @@ export type UserGetById = RequestHandler<{ id: string }, WithId<UserMongoDB> | E
 export type UserGetByEmail = RequestHandler<{ email: string }, WithId<UserMongoDB> | ErrorResponse>;
 
 export const updateUser: UserUpdate = async (req, res): Promise<void> => {
-  try {
-    const userUpdates = req.body;
+    try {
+        const userUpdates = req.body;
 
-    const updateData = {
-      ...userUpdates,
-    };
+        if (req.file) {
+            userUpdates.profilePictureUrl = req.file.path;
+        }
 
-    userSchema
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      .extend({ _id: z.string().regex(/^[0-9a-fA-F]{24}$/) })
-      .strict()
-      .partial()
-      .parse(updateData);
+        const updateData = {
+            ...userUpdates,
+        };
 
-    //@ts-ignore
-    if (updateData._id !== req.userId) {
-      res.status(httpCode.FORBIDDEN).json({ message: 'Forbidden' });
-      return;
+        userSchema
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            .extend({_id: z.string().regex(/^[0-9a-fA-F]{24}$/)})
+            .strict()
+            .partial()
+            .parse(updateData);
+
+        //@ts-ignore
+        if (updateData._id !== req.userId) {
+            res.status(httpCode.FORBIDDEN).json({message: 'Forbidden'});
+            return;
+        }
+
+        const result = await service.updateUser(updateData);
+
+        if (result.matchedCount === 0) {
+            res.status(httpCode.NOT_FOUND).json({message: 'User not found'});
+            return;
+        }
+        res.status(httpCode.NO_CONTENT).send();
+        return;
+    } catch (err: unknown) {
+        if (err instanceof ZodError) {
+            res.status(httpCode.BAD_REQUEST).json({message: err.issues});
+            return;
+        }
+        if (err instanceof Error) {
+            res.status(httpCode.BAD_REQUEST).json({message: err.message});
+            return;
+        }
+        res.status(httpCode.INTERNAL_SERVER_ERROR).json({message: 'Internal server error'});
+        return;
     }
-
-    const result = await service.updateUser(updateData);
-
-    if (result.matchedCount === 0) {
-      res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
-      return;
-    }
-    res.status(httpCode.NO_CONTENT).send();
-    return;
-  } catch (err: unknown) {
-    if (err instanceof ZodError) {
-      res.status(httpCode.BAD_REQUEST).json({ message: err.issues });
-      return;
-    }
-    if (err instanceof Error) {
-      res.status(httpCode.BAD_REQUEST).json({ message: err.message });
-      return;
-    }
-    res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
-    return;
-  }
 };
 
 export const getUserById: UserGetById = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const result = await service.getUserById(id);
-    if (!result) {
-      return res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
+    try {
+        const id = req.params.id;
+        const result = await service.getUserById(id);
+        if (!result) {
+            return res.status(httpCode.NOT_FOUND).json({message: 'User not found'});
+        }
+        return res.json(result);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            return res.status(httpCode.BAD_REQUEST).json({message: err.message});
+        }
+        return res.status(httpCode.INTERNAL_SERVER_ERROR).json({message: 'Internal server error'});
     }
-    return res.json(result);
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
-    }
-    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
-  }
 };
 
 export const getUserByEmail: UserGetByEmail = async (req, res) => {
-  try {
-    const email = req.params.email;
-    const result = await service.getUserByEmail(email);
+    try {
+        const email = req.params.email;
+        const result = await service.getUserByEmail(email);
 
-    if (!result) {
-      return res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
-    }
+        if (!result) {
+            return res.status(httpCode.NOT_FOUND).json({message: 'User not found'});
+        }
 
-    return res.json(result);
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
+        return res.json(result);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            return res.status(httpCode.BAD_REQUEST).json({message: err.message});
+        }
+        return res.status(httpCode.INTERNAL_SERVER_ERROR).json({message: 'Internal server error'});
     }
-    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
-  }
 };
 
 export const createUser: UserCreate = async (req, res) => {
-  try {
-    const user = req.body as UserRegister;
+    try {
+        const user = req.body as UserRegister;
 
-    userRegisterSchema.parse(user);
+        userRegisterSchema.parse(user);
 
-    const result = await service.createUser(user);
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    return res.status(httpCode.CREATED).json({ _id: result });
-  } catch (err: unknown) {
-    if (err instanceof ZodError) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.issues });
+        const result = await service.createUser(user);
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        return res.status(httpCode.CREATED).json({_id: result});
+    } catch (err: unknown) {
+        if (err instanceof ZodError) {
+            return res.status(httpCode.BAD_REQUEST).json({message: err.issues});
+        }
+        if (err instanceof Error) {
+            return res.status(httpCode.BAD_REQUEST).json({message: err.message});
+        }
+        return res.status(httpCode.INTERNAL_SERVER_ERROR).json({message: 'Internal server error'});
     }
-    if (err instanceof Error) {
-      return res.status(httpCode.BAD_REQUEST).json({ message: err.message });
-    }
-    return res.status(httpCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
-  }
 };
 
 export const getCurrentUser: RequestHandler<undefined, WithId<UserMongoDB> | ErrorResponse> = async (req, res) => {
-  const accessToken = req.cookies['access-token'] as string;
+    const accessToken = req.cookies['access-token'] as string;
 
-  const userTokenData = JSON.parse(atob(accessToken.split('.')[1])) as WithId<UserMongoDB>;
-  const id = userTokenData?._id?.toString();
-  if (!id) {
-    return res.status(httpCode.BAD_REQUEST).json({ message: 'Invalid token' });
-  }
-  const user = await service.getUserById(id);
-  if (!user) {
-    return res.status(httpCode.NOT_FOUND).json({ message: 'User not found' });
-  }
-  return res.json(user);
+    const userTokenData = JSON.parse(atob(accessToken.split('.')[1])) as WithId<UserMongoDB>;
+    const id = userTokenData?._id?.toString();
+    if (!id) {
+        return res.status(httpCode.BAD_REQUEST).json({message: 'Invalid token'});
+    }
+    const user = await service.getUserById(id);
+    if (!user) {
+        return res.status(httpCode.NOT_FOUND).json({message: 'User not found'});
+    }
+    return res.json(user);
 };
