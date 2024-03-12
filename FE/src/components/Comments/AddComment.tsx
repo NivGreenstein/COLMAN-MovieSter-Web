@@ -81,7 +81,6 @@ export const AddComment: React.FC<AddCommentProps> = ({
         imagePreview={imagePreview}
         setImage={setImage}
         setImagePreview={setImagePreview}
-        disableRatingAndImageUpload={!!mainCommentId} // Disable rating and image upload if it's a reply
       />
     </>
   );

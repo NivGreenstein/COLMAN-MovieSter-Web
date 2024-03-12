@@ -17,7 +17,6 @@ interface AddCommentDialogProps {
   setImage: (value: RcFile | null) => void;
   setImagePreview: (value: string) => void;
   imagePreview: string | undefined;
-  disableRatingAndImageUpload?: boolean;
 }
 
 const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
@@ -33,7 +32,6 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
   setImage,
   setImagePreview,
   imagePreview,
-  disableRatingAndImageUpload = false,
 }) => {
   const handleOk = () => {
     handleSubmit();
@@ -81,44 +79,40 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
       onCancel={handleCancel}
     >
       <Form>
-        {!disableRatingAndImageUpload && (
-          <Form.Item label="Rating">
-            <Rate value={rating} onChange={setRating} />
-          </Form.Item>
-        )}
+        <Form.Item label="Rating">
+          <Rate value={rating} onChange={setRating} />
+        </Form.Item>
         <Form.Item label="Description">
           <Input.TextArea value={description} onChange={(e) => setDescription(e.target.value)} />
         </Form.Item>
-        {!disableRatingAndImageUpload && (
-          <Form.Item label="Image Upload">
-            {imagePreview ? (
-              <div className="image-preview">
-                <Image src={`${imagePreview}`} alt="Comment image" style={{ width: '100%' }} />
-                <Button
-                  icon={<DeleteOutlined />}
-                  onClick={handleRemoveImage}
-                  style={{ marginTop: '10px' }}
-                  disabled={!imagePreview}
-                >
-                  Remove
-                </Button>
-              </div>
-            ) : (
-              <Upload
-                name="image"
-                listType="picture-card"
-                className="image-uploader"
-                showUploadList={false}
-                beforeUpload={beforeUpload}
-                onChange={handleUploadChange}
+        <Form.Item label="Image Upload">
+          {imagePreview ? (
+            <div className="image-preview">
+              <Image src={`${imagePreview}`} alt="Comment image" style={{ width: '100%' }} />
+              <Button
+                icon={<DeleteOutlined />}
+                onClick={handleRemoveImage}
+                style={{ marginTop: '10px' }}
+                disabled={!imagePreview}
               >
-                <div>
-                  <PlusOutlined />
-                </div>
-              </Upload>
-            )}
-          </Form.Item>
-        )}
+                Remove
+              </Button>
+            </div>
+          ) : (
+            <Upload
+              name="image"
+              listType="picture-card"
+              className="image-uploader"
+              showUploadList={false}
+              beforeUpload={beforeUpload}
+              onChange={handleUploadChange}
+            >
+              <div>
+                <PlusOutlined />
+              </div>
+            </Upload>
+          )}
+        </Form.Item>
       </Form>
     </Modal>
   );
