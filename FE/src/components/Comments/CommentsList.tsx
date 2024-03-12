@@ -133,7 +133,7 @@ const CommentList: React.FC<CommentListProps> = ({
                       <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
                         {comment.description}
                       </Typography.Paragraph>
-                      {!isCommentThread && comment.imagePath && (
+                      {comment.imagePath && (
                         <Image
                           width={50}
                           src={`${import.meta.env.VITE_API_URI}/${comment.imagePath}`}
