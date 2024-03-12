@@ -57,7 +57,7 @@ const MovieInfoPage: React.FC = () => {
     }
 
     return (
-        <Layout style={{width: '100vw', height: '100vh'}}>
+        <Layout style={{width: '100vw', height: '100vh', overflowY: 'hidden'}}>
             <Content style={{padding: '2rem'}}>
                 <Row gutter={16}>
                     <Col span={8}>

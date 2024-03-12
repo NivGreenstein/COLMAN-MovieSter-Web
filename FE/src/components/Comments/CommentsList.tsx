@@ -1,75 +1,75 @@
-import React, {useState} from 'react';
-import {Image, Tooltip, List, Rate, Avatar, Button, Typography} from 'antd';
-import {EditOutlined, DeleteOutlined} from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Image, Tooltip, List, Rate, Avatar, Button, Typography } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import {Comment, CommentFullSchema} from '../../types/IComment';
-import {useSession} from '../../context/SessionContext';
-import {deleteComment, patchComment} from '../../services/comments.service';
+import { Comment, CommentFullSchema } from '../../types/IComment';
+import { useSession } from '../../context/SessionContext';
+import { deleteComment, patchComment } from '../../services/comments.service';
 import AddCommentDialog from './AddCommentDialog';
-import {CommentThreadModal} from './CommentThreadModal';
-import {RcFile} from 'antd/es/upload/interface';
-import {useNavigate} from 'react-router-dom';
+import { CommentThreadModal } from './CommentThreadModal';
+import { RcFile } from 'antd/es/upload/interface';
+import { useNavigate } from 'react-router-dom';
 
 interface CommentListProps {
-    comments: Comment[];
-    setComments: (comments: Comment[]) => void;
-    isMoviePage: boolean;
-    setImagePreview: (value: string) => void;
-    imagePreview: string | undefined;
-    isCommentThread?: boolean;
+  comments: Comment[];
+  setComments: (comments: Comment[]) => void;
+  isMoviePage: boolean;
+  setImagePreview: (value: string) => void;
+  imagePreview: string | undefined;
+  isCommentThread?: boolean;
 }
 
 const CommentList: React.FC<CommentListProps> = ({
-                                                     comments,
-                                                     isMoviePage,
-                                                     setComments,
-                                                     imagePreview,
-                                                     setImagePreview,
-                                                     isCommentThread = false,
-                                                 }) => {
-    const navigate = useNavigate();
-    const [isAddCommentModalVisible, setIsAddCommentModalVisible] = useState(false);
-    const [activeThreadCommentId, setActiveThreadCommentId] = useState<string | null>(null);
+  comments,
+  isMoviePage,
+  setComments,
+  imagePreview,
+  setImagePreview,
+  isCommentThread = false,
+}) => {
+  const navigate = useNavigate();
+  const [isAddCommentModalVisible, setIsAddCommentModalVisible] = useState(false);
+  const [activeThreadCommentId, setActiveThreadCommentId] = useState<string | null>(null);
 
-    const [commentIdToEdit, setCommentIdToEdit] = useState('');
-    const [description, setDescription] = useState('');
-    const [rating, setRating] = useState(0);
-    const {loggedUser} = useSession();
-    const [image, setImage] = useState<RcFile | null>(null);
+  const [commentIdToEdit, setCommentIdToEdit] = useState('');
+  const [description, setDescription] = useState('');
+  const [rating, setRating] = useState(0);
+  const { loggedUser } = useSession();
+  const [image, setImage] = useState<RcFile | null>(null);
 
-    const handleDeleteComment = async (commentId: string) => {
-        const response = await deleteComment(commentId);
-        if (response?.ok) {
-            console.log('Comment deleted', response);
-            const updatedComments = comments.filter((comment) => comment._id !== commentId);
-            setComments(updatedComments);
-        }
+  const handleDeleteComment = async (commentId: string) => {
+    const response = await deleteComment(commentId);
+    if (response?.ok) {
+      console.log('Comment deleted', response);
+      const updatedComments = comments.filter((comment) => comment._id !== commentId);
+      setComments(updatedComments);
+    }
+  };
+
+  const handleEditButtonClick = (commentId: string) => {
+    setCommentIdToEdit(commentId);
+    const comment = comments.find((comment) => comment._id === commentId);
+    if (!comment) throw new Error('No comment found');
+    setDescription(comment.description);
+    setRating(comment.rating);
+    setIsAddCommentModalVisible(true);
+    if (comment.imagePath) {
+      setImagePreview(`${import.meta.env.VITE_API_URI}/${comment.imagePath}`);
+    }
+  };
+
+  const handleEdit = async () => {
+    if (!commentIdToEdit) throw new Error('No comment to edit');
+
+    const commentToUpdate = {
+      _id: commentIdToEdit,
+      description: description,
+      rating: rating,
+      imagePath: imagePreview,
     };
-
-    const handleEditButtonClick = (commentId: string) => {
-        setCommentIdToEdit(commentId);
-        const comment = comments.find((comment) => comment._id === commentId);
-        if (!comment) throw new Error('No comment found');
-        setDescription(comment.description);
-        setRating(comment.rating);
-        setIsAddCommentModalVisible(true);
-        if (comment.imagePath) {
-            setImagePreview(`${import.meta.env.VITE_API_URI}/${comment.imagePath}`);
-        }
-    };
-
-    const handleEdit = async () => {
-        if (!commentIdToEdit) throw new Error('No comment to edit');
-
-        const commentToUpdate = {
-            _id: commentIdToEdit,
-            description: description,
-            rating: rating,
-            imagePath: imagePreview,
-        };
-        CommentFullSchema.partial().parse(commentToUpdate);
-        try {
-            const response = await patchComment(commentToUpdate, image ? (image as File) : undefined);
+    CommentFullSchema.partial().parse(commentToUpdate);
+    try {
+      const response = await patchComment(commentToUpdate, image ? (image as File) : undefined);
 
             console.log('Comment updated', response);
             const updatedComments = comments.map((comment) =>
