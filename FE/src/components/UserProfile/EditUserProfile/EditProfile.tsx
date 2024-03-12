@@ -17,6 +17,8 @@ const EditUserProfile: React.FC = () => {
         const {loggedUser, setLoggedUser} = useSession();
         const [username, setUsername] = useState<string>('');
         const [profileImage, setProfileImage] = useState<string>('');
+        const [profileImageFile, setProfileImageFile] = useState<RcFile>();
+        const [previewImage, setPreviewImage] = useState<string>('');
 
         useEffect(() => {
             if (loggedUser) {
@@ -39,12 +41,7 @@ const EditUserProfile: React.FC = () => {
 
                     formData.append('username', username);
 
-                    if (profileImage) {
-                        formData.append('profilePictureUrl', profileImage);
-                    }
-
-
-                    await updateUser(formData);
+                    await updateUser(formData, (profileImageFile as File) ? (profileImageFile as File) : undefined);
                     if (loggedUser) {
                         const updatedUser: IUser = {
                             ...loggedUser,
@@ -67,7 +64,8 @@ const EditUserProfile: React.FC = () => {
 
         const handleImageChange = ({file}: UploadChangeParam<UploadFile>) => {
             if ('originFileObj' in file && file.originFileObj) {
-                setProfileImage(URL.createObjectURL(file.originFileObj as Blob));
+                setPreviewImage(URL.createObjectURL(file.originFileObj as Blob));
+                setProfileImageFile(file.originFileObj as RcFile);
             } else {
                 setProfileImage(URL.createObjectURL(file as unknown as Blob));
             }
@@ -82,12 +80,13 @@ const EditUserProfile: React.FC = () => {
             if (!isLt2M) {
                 message.error('Image must smaller than 2MB!');
             }
-            return isJpgOrPng && isLt2M ? false : Upload.LIST_IGNORE;
+            return isJpgOrPng && isLt2M;
         };
 
+        const displayImage: string = previewImage ? previewImage : `${import.meta.env.VITE_API_URI}/${profileImage}`;
         const uploadedImage = (
             <div className="image-preview">
-                <Avatar src={profileImage} size={120}/>
+                <Avatar src={displayImage} size={120}/>
                 <div className="edit-icon-overlay">
                     <EditOutlined/>
                 </div>
