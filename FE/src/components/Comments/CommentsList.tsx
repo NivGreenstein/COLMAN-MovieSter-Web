@@ -69,7 +69,7 @@ const CommentList: React.FC<CommentListProps> = ({
     };
     CommentFullSchema.partial().parse(commentToUpdate);
     try {
-      const response = await patchComment(commentToUpdate, image ? image as File : undefined);
+      const response = await patchComment(commentToUpdate, image ? (image as File) : undefined);
 
       console.log('Comment updated', response);
       const updatedComments = comments.map((comment) =>
@@ -129,11 +129,11 @@ const CommentList: React.FC<CommentListProps> = ({
                   title={isMoviePage ? comment.user?.username : comment.movie?.title}
                   description={
                     <>
-                      <Rate disabled value={comment.rating} />
+                      {!isCommentThread && <Rate disabled value={comment.rating} />}
                       <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
                         {comment.description}
                       </Typography.Paragraph>
-                      {comment.imagePath && (
+                      {!isCommentThread && comment.imagePath && (
                         <Image
                           width={50}
                           src={`${import.meta.env.VITE_API_URI}/${comment.imagePath}`}
