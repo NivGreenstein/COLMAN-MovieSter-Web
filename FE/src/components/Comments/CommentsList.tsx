@@ -59,12 +59,10 @@ const CommentList: React.FC<CommentListProps> = ({
 
   const handleEdit = async () => {
     if (!commentIdToEdit) throw new Error('No comment to edit');
-
     const commentToUpdate = {
       _id: commentIdToEdit,
       description: description,
       rating: rating,
-      imagePath: imagePreview,
     };
     CommentFullSchema.partial().parse(commentToUpdate);
     try {
@@ -75,7 +73,7 @@ const CommentList: React.FC<CommentListProps> = ({
           ? {
               ...comment,
               ...commentToUpdate,
-              imagePath: response.imagePath,
+              imagePath: response.imagePath ?? comment.imagePath,
             }
           : comment,
       );
