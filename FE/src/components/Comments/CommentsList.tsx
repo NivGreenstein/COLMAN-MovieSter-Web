@@ -40,7 +40,6 @@ const CommentList: React.FC<CommentListProps> = ({
   const handleDeleteComment = async (commentId: string) => {
     const response = await deleteComment(commentId);
     if (response?.ok) {
-      console.log('Comment deleted', response);
       const updatedComments = comments.filter((comment) => comment._id !== commentId);
       setComments(updatedComments);
     }
@@ -71,7 +70,6 @@ const CommentList: React.FC<CommentListProps> = ({
     try {
       const response = await patchComment(commentToUpdate, image ? (image as File) : undefined);
 
-      console.log('Comment updated', response);
       const updatedComments = comments.map((comment) =>
         comment._id === commentIdToEdit
           ? {

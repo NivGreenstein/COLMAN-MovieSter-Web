@@ -13,7 +13,6 @@ const GoogleLoginButton: React.FC = () => {
   return (
     <GoogleLogin
       onSuccess={(credentialResponse) => {
-        console.log(credentialResponse);
         authService
           .loginGoogle(credentialResponse.credential ?? '')
           .then(async () => {
@@ -21,7 +20,6 @@ const GoogleLoginButton: React.FC = () => {
               setIsLoggedIn(true);
               const user = await authService.getCurrentUserData();
               setLoggedUser(user as IUser);
-              console.log('Login success:', user);
               navigate('/movies');
             } catch (error) {
               console.error('Login failed:', error);

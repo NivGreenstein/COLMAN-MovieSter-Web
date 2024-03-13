@@ -56,7 +56,6 @@ export const AddComment: React.FC<AddCommentProps> = ({
     const createdComment = await createComment(commentToCreate, image ? image : undefined);
 
     if (createdComment) {
-      console.log('Comment created', createdComment);
       fetchComments();
       restartAddCommentStates();
       setIsModalVisible(false);

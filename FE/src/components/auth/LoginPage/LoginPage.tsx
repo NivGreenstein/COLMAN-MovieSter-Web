@@ -18,11 +18,10 @@ const LoginPage: React.FC = () => {
       .then(async (values) => {
         try {
           const { email, password } = values;
-          const data = await authService.loginUser(email, password);
+          await authService.loginUser(email, password);
           setIsLoggedIn(true);
           const user = await authService.getCurrentUserData();
           setLoggedUser(user as IUser);
-          console.log('Login success:', data);
           message.success('Login successful!');
           navigate('/movies');
         } catch (error) {
