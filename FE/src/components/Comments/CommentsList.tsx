@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, Tooltip, List, Rate, Avatar, Button, Typography } from 'antd';
+import { Image, Tooltip, List, Rate, Avatar, Button, Typography, ConfigProvider } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { Comment, CommentFullSchema } from '../../types/IComment';
@@ -107,12 +107,28 @@ const CommentList: React.FC<CommentListProps> = ({
                 actions={
                   comment.userId === loggedUser?._id
                     ? [
-                        <Button icon={<EditOutlined />} onClick={() => handleEditButtonClick(comment._id)}>
-                          Edit
-                        </Button>,
-                        <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
-                          Delete
-                        </Button>,
+                        <ConfigProvider
+                          theme={{
+                            token: {
+                              colorPrimaryHover: '#E8751A',
+                            },
+                          }}
+                        >
+                          <Button icon={<EditOutlined />} onClick={() => handleEditButtonClick(comment._id)}>
+                            Edit
+                          </Button>
+                        </ConfigProvider>,
+                        <ConfigProvider
+                          theme={{
+                            token: {
+                              colorPrimaryHover: '#B80000',
+                            },
+                          }}
+                        >
+                          <Button icon={<DeleteOutlined />} onClick={() => handleDeleteComment(comment._id)}>
+                            Delete
+                          </Button>
+                        </ConfigProvider>,
                       ]
                     : []
                 }
