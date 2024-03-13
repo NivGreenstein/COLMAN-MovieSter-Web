@@ -51,6 +51,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
       <Content style={{ background: 'white', padding: '30px 30px 30px 30px', minHeight: '100vh', minWidth: '100vw' }}>
         <Row gutter={16} justify="space-between" align="top" style={{ padding: '1vh' }}>
           <Col span={12}>
+            {user._id === loggedUser?._id && (
             <Button
               onClick={handleEditProfileClick}
               style={{ marginRight: '110vh', marginBottom: '100px' }}
@@ -60,6 +61,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
             >
               Edit Profile
             </Button>
+            )}
             <CommentList
               comments={comments}
               isMoviePage={false}
