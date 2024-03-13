@@ -36,7 +36,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
 
     if (!loggedUser) throw new Error('No user found');
     getCommentsByUserId(id ?? loggedUser?._id).then((commentsResponse) => setComments(commentsResponse));
-  }, []);
+  }, [id]);
 
   const handleEditProfileClick = () => {
     navigate('/edit-profile'); // The route you'll use for the edit profile page
@@ -52,15 +52,15 @@ const UserProfile: React.FC<UserProfileProps> = () => {
         <Row gutter={16} justify="space-between" align="top" style={{ padding: '1vh' }}>
           <Col span={12}>
             {user._id === loggedUser?._id && (
-            <Button
-              onClick={handleEditProfileClick}
-              style={{ marginRight: '110vh', marginBottom: '100px' }}
-              type="primary"
-              shape="round"
-              icon={<EditOutlined />}
-            >
-              Edit Profile
-            </Button>
+              <Button
+                onClick={handleEditProfileClick}
+                style={{ marginRight: '110vh', marginBottom: '100px' }}
+                type="primary"
+                shape="round"
+                icon={<EditOutlined />}
+              >
+                Edit Profile
+              </Button>
             )}
             <CommentList
               comments={comments}
