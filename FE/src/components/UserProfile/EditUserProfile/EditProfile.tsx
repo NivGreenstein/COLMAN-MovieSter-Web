@@ -81,7 +81,11 @@ const EditUserProfile: React.FC = () => {
     return isJpgOrPng && isLt2M;
   };
 
-  const displayImage: string = previewImage ? previewImage : `${import.meta.env.VITE_API_URI}/${profileImage}`;
+  const displayImage: string = previewImage
+    ? previewImage
+    : loggedUser?.isGoogleUser
+      ? profileImage
+      : `${import.meta.env.VITE_API_URI}/${profileImage}`;
   const uploadedImage = (
     <div className="image-preview">
       <Avatar src={displayImage} size={120} />
