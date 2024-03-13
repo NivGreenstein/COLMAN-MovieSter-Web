@@ -85,7 +85,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
               <Card title="Statistics" style={{ width: 300 }}>
                 <Statistic title="Movies Rated" value={comments.length} />
                 <Statistic
-                  title="Rating Average"
+                  title="Average Rating"
                   value={
                     comments.length
                       ? (comments.reduce((sum, comment) => comment.rating + sum, 0) / comments.length).toFixed(2)
