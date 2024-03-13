@@ -111,6 +111,7 @@ const EditUserProfile: React.FC = () => {
               showUploadList={false}
               beforeUpload={beforeUpload}
               onChange={handleImageChange}
+              disabled={loggedUser?.isGoogleUser}
             >
               {form.getFieldValue('profileImage') ? uploadedImage : uploadButton}
             </Upload>
