@@ -5,34 +5,40 @@ import {ObjectId} from 'mongodb';
 import userRouter from '../src/routes/user.router';
 import * as userService from '../src/services/user.service';
 import * as service from "../src/services/comment.service";
+import httpCode from "http-status-codes";
 
 jest.mock('../src/services/user.service');
 
+function testUserIdMiddleware(req, res, next) {
+    req.userId = '60d0fe4f5311236168a109ca';
+    next();
+}
+
 const app = express();
 app.use(express.json());
+app.use(testUserIdMiddleware);
 app.use('/users', userRouter);
 
 describe('UserController', () => {
-    describe('POST /users', () => {
-        it('should create a user successfully', async () => {
-            const mockUser = {username: 'testuser', email: 'test@example.com', password: 'password123'};
+    describe('PATCH /users', () => {
+        const mockId: string = '60d0fe4f5311236168a109ca';
+        it('should update a user successfully', async () => {
+            const mockUser = {username: 'testuser', email: 'test@example.com', _id: mockId};
             const mockResponse = new ObjectId();
-            (userService.createUser as jest.MockedFunction<typeof userService.createUser>).mockResolvedValue(mockResponse);
+            (userService.updateUser as jest.MockedFunction<typeof userService.createUser>).mockResolvedValue(mockResponse);
+
 
             const response = await request(app)
-                .post('/users')
-                .send(mockUser);
+                .patch(`/users`)
+                .send(mockUser)
 
-
-            expect(response.statusCode).toBe(201);
-            expect(response.body._id).toEqual(mockResponse.toString());
-            expect(userService.createUser).toHaveBeenCalledWith(expect.objectContaining(mockUser));
+            expect(response.statusCode).toBe(httpCode.NO_CONTENT);
         });
 
         it('should return 400 BAD REQUEST when required fields are missing', async () => {
             const response = await request(app)
-                .post('/users')
-                .send({email: 'test@example.com'});
+                .patch('/users')
+                .set('email', 'test@example.com').send();
 
             expect(response.statusCode).toBe(400);
         });
@@ -40,7 +46,7 @@ describe('UserController', () => {
 
     describe('GET /users/:id', () => {
         it('should return a user by ID', async () => {
-            const userId = new ObjectId();
+            const userId = '60d0fe4f5311236168a109ca';
             const mockUser = {_id: userId, username: 'testuser', email: 'test@example.com'};
             userService.getUserById.mockResolvedValue(mockUser);
 
@@ -57,7 +63,7 @@ describe('UserController', () => {
 
             const response = await request(app).get(`/users/${userId}`);
 
-            expect(response.statusCode).toBe(404);
+            expect(response.status).toBe(404);
         });
     });
 });
