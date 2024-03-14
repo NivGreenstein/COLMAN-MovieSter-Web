@@ -63,6 +63,7 @@ export const CommentThreadModal: React.FC<CommentThreadModalProps> = ({
                     setImagePreview={setImagePreview}
                     setImage={setImage}
                     image={image}
+                    isCommentThread={true}
                 />
                 <CommentList comments={comments} isMoviePage={true} isCommentThread={true} setComments={setComments}
                              setImagePreview={setImagePreview} imagePreview={imagePreview}/>
