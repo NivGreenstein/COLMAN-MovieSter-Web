@@ -18,6 +18,8 @@ interface AddCommentDialogProps {
     setImagePreview: (value: string) => void;
     imagePreview: string | undefined;
     isCommentThread?: boolean;
+    setIsDeletedImage?: (value: boolean) => void;
+
 }
 
 const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
@@ -33,7 +35,8 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
                                                                setImage,
                                                                setImagePreview,
                                                                imagePreview,
-                                                               isCommentThread = undefined
+                                                               isCommentThread = undefined,
+                                                               setIsDeletedImage = undefined
                                                            }) => {
     const handleOk = () => {
         if (isCommentThread) {
@@ -42,11 +45,12 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
                 return;
             }
         } else {
-            if (rating === 0 || (!description.trim() && !imagePreview)) {
+            if (rating === 0) {
                 message.error('Please add a rating and a description or an image!');
                 return;
             }
-        }        handleSubmit();
+        }
+        handleSubmit();
         setIsModalVisible(false);
         setImagePreview('');
     };
@@ -75,12 +79,18 @@ const AddCommentDialog: React.FC<AddCommentDialogProps> = ({
             setImage(lastFile.originFileObj);
             const setPreview = URL.createObjectURL(lastFile.originFileObj);
             setImagePreview(setPreview);
+            if (setIsDeletedImage) {
+                setIsDeletedImage(false);
+            }
         }
     };
 
     const handleRemoveImage = () => {
         setImage(null);
         setImagePreview('');
+        if (setIsDeletedImage) {
+            setIsDeletedImage(true);
+        }
     };
 
     return (

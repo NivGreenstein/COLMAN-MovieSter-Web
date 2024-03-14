@@ -36,6 +36,7 @@ const CommentList: React.FC<CommentListProps> = ({
     const [rating, setRating] = useState(0);
     const {loggedUser} = useSession();
     const [image, setImage] = useState<RcFile | null>(null);
+    const [isDeletedImage, setIsDeletedImage] = useState<boolean>(false);
 
     const handleDeleteComment = async (commentId: string) => {
         const response = await deleteComment(commentId);
@@ -59,10 +60,18 @@ const CommentList: React.FC<CommentListProps> = ({
 
     const handleEdit = async () => {
         if (!commentIdToEdit) throw new Error('No comment to edit');
+
+        const currentComment = comments.find(comment => comment._id === commentIdToEdit);
+        let currentImage: string | null | undefined = currentComment?.imagePath;
+        currentImage = currentImage && !image ? currentImage : undefined;
+        if (isDeletedImage) {
+            currentImage = undefined
+        }
         const commentToUpdate = {
             _id: commentIdToEdit,
             description: description,
             rating: rating,
+            imagePath: currentImage
         };
         CommentFullSchema.partial().parse(commentToUpdate);
         try {
@@ -203,6 +212,8 @@ const CommentList: React.FC<CommentListProps> = ({
                 setDescription={setDescription}
                 isEditMode={true}
                 setImage={setImage}
+                isCommentThread={isCommentThread}
+                setIsDeletedImage={setIsDeletedImage}
                 setImagePreview={setImagePreview}
                 imagePreview={imagePreview}
                 restartStates={() => {
