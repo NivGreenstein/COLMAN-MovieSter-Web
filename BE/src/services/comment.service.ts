@@ -127,13 +127,30 @@ export const updateComment = async (comment: Partial<WithId<Comment>>, userId: s
 
 export const deleteComment = async (commentId: string, userId: string): Promise<DeleteResult> => {
     const collection = await getCollection();
-    const res = await collection.deleteMany({
+  const commentsToDelete = await collection
+    .find({
         $or: [
-            {_id: new ObjectId(commentId), userId: new ObjectId(userId)},
+        { _id: new ObjectId(commentId), userId: new ObjectId(userId) },
             {
                 mainCommentId: new ObjectId(commentId),
             },
         ],
+    })
+    .toArray();
+
+  for (const comment of commentsToDelete) {
+    if (comment.imagePath) {
+      try {
+        await fs.promises.unlink(comment.imagePath);
+      } catch (e) {
+        console.error('Could not delete image', e);
+      }
+    }
+  }
+  const commentsToDeleteIds = commentsToDelete.map((comment) => comment._id);
+
+  const res = await collection.deleteMany({
+    _id: { $in: commentsToDeleteIds },
     });
     return res;
 };
