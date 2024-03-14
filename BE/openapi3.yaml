@@ -79,10 +79,10 @@ paths:
         content:
           application/json:
             schema:
-                type: object
-                properties:
-                  code:
-                    type: string
+              type: object
+              properties:
+                code:
+                  type: string
         required: true
       operationId: loginGoogle
       responses:
@@ -220,7 +220,6 @@ paths:
       summary: Create new comment with an optional image
       operationId: createComment
       tags:
-        - authenticated routes
         - comments
       parameters:
         - in: cookie
@@ -230,7 +229,7 @@ paths:
             type: string
           description: JWT Access token
       requestBody:
-        description: Send new comment data along with an optional image
+        required: true
         content:
           multipart/form-data:
             schema:
@@ -239,7 +238,8 @@ paths:
                 description:
                   type: string
                 rating:
-                  type: number
+                  type: integer
+                  format: int32
                 movieId:
                   type: string
                 userId:
@@ -247,12 +247,14 @@ paths:
                 image:
                   type: string
                   format: binary
+                  description: Optional image for the comment
               required:
                 - description
                 - rating
+                - movieId
       responses:
         "201":
-          description: Created
+          description: Comment created successfully
           content:
             application/json:
               schema:
@@ -260,18 +262,20 @@ paths:
                 properties:
                   _id:
                     type: string
-                    pattern: "^[0-9a-fA-F]{24}$"
+                    description: The unique identifier for the comment
+                  imagePath:
+                    type: string
+                    description: Path to the uploaded image (if any)
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "5XX":
+        "500":
           $ref: "#/components/responses/UnexpectedError"
     patch:
-      summary: Update comment
+      summary: Update an existing comment
       operationId: updateComment
       tags:
-        - authenticated routes
         - comments
       parameters:
         - in: cookie
@@ -281,21 +285,34 @@ paths:
             type: string
           description: JWT Access token
       requestBody:
-        description: send new comment data
-        content:
-          application/json:
-            schema:
-              allOf:
-                - $ref: "#/components/schemas/CommentUpdate"
         required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _id:
+                  type: string
+                  description: ID of the comment to update
+                description:
+                  type: string
+                rating:
+                  type: integer
+                  format: int32
+                image:
+                  type: string
+                  format: binary
+                  description: New image to replace the existing one (if any)
       responses:
         "204":
-          $ref: "#/components/responses/NoContent"
+          description: Comment updated successfully
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        5XX:
+        "404":
+          description: Comment not found
+        "500":
           $ref: "#/components/responses/UnexpectedError"
   /comments/{commentId}:
     get:
@@ -463,7 +480,7 @@ paths:
           $ref: "#/components/responses/UnexpectedError"
   /users:
     patch:
-      summary: update user's data
+      summary: Update user's data
       operationId: patchUser
       tags:
         - authenticated routes
@@ -476,22 +493,35 @@ paths:
             type: string
           description: JWT Access token
       requestBody:
-        description: send user's data to update
-        content:
-          application/json:
-            schema:
-              allOf:
-                - $ref: "#/components/schemas/UserForUpdate"
         required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                profilePicture:
+                  type: string
+                  format: binary
+                  description: Upload a new profile picture.
+              required:
+                - username
+                - email
       responses:
-        "204":
-          $ref: "#/components/responses/NoContent"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        5XX:
-          $ref: "#/components/responses/UnexpectedError"
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: User not found
+        '500':
+          $ref: '#/components/responses/UnexpectedError'
   /users/{userId}:
     get:
       summary: get user by id
@@ -553,6 +583,33 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         5XX:
           $ref: "#/components/responses/UnexpectedError"
+  /users/email/{email}:
+    get:
+      summary: Get user by email
+      operationId: getUserByEmail
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema:
+            type: string
+            format: email
+          description: User email
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
   /logout:
     post:
       summary: logout user
