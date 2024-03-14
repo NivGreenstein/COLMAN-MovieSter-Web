@@ -92,7 +92,7 @@ export const getCommentsThread = async (mainCommentId: string): Promise<WithId<C
 
 export const updateComment = async (comment: Partial<WithId<Comment>>, userId: string): Promise<UpdateResult<CommentMongoDb>> => {
     const collection = await getCollection();
-    const {_id, ...commentWithoutId} = comment;
+  const { _id, ...commentWithoutId } = comment;
 
     if (comment.imagePath) {
         commentWithoutId.imagePath = comment.imagePath;
@@ -100,8 +100,21 @@ export const updateComment = async (comment: Partial<WithId<Comment>>, userId: s
         commentWithoutId.imagePath = undefined;
     }
 
+  const commentBeforeUpdate = await collection.findOne({
+    _id: new ObjectId(_id),
+    userId: new ObjectId(userId),
+  });
+
+  if (commentBeforeUpdate && commentBeforeUpdate?.imagePath && commentBeforeUpdate.imagePath !== commentWithoutId.imagePath) {
+    try {
+      await fs.promises.unlink(commentBeforeUpdate.imagePath);
+    } catch (e) {
+      console.error('Could not delete image', e);
+    }
+  }
+
     const data = await collection.updateOne(
-        {_id: new ObjectId(_id), userId: new ObjectId(userId)},
+    { _id: new ObjectId(_id), userId: new ObjectId(userId) },
         {
             $set: {
                 ...commentWithoutId,
