@@ -154,7 +154,7 @@ const CommentList: React.FC<CommentListProps> = ({
                                     title={isMoviePage ? comment.user?.username : comment.movie?.title}
                                     description={
                                         <>
-                                            {<Rate disabled value={comment.rating}/>}
+                                            {!isCommentThread && (<Rate disabled value={comment.rating}/>)}
                                             <Typography.Paragraph
                                                 ellipsis={{rows: 2, expandable: true, symbol: 'more'}}>
                                                 {comment.description}
